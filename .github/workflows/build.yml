@@ -49,18 +49,29 @@ jobs:
     - name: Ut Video Codec Suite build
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
-        git clone https://github.com/umezawatakeshi/utvideo.git
+        git clone --depth=1 https://github.com/umezawatakeshi/utvideo.git
         cd utvideo
-        msbuild utvideo.sln /m /t:utv_core:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}}
+        msbuild utvideo.sln /m /t:utv_core:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:PostBuildEvent=
 
-### AvisyntNeo ビルド
+### AvisyntNeo ビルド 使用するライブラリーの位置:AviSynthPlus\build\Output\c_api\AviSynth.lib
     - name: AvisynthNeo build
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
-        git clone https://github.com/nekopanda/AviSynthPlus.git
+        git clone --depth=1 https://github.com/nekopanda/AviSynthPlus.git
         cd AviSynthPlus
         cmake -G "Visual Studio 16 2019" -A x64
         msbuild build\AviSynth+.sln /m /t:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}}
+
+### Amatsukaze ビルド
+    - name: Amatsukaze build
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        git clone --depth=1 --recurse-submodules --shallow-submodules https://github.com/nekopanda/Amatsukaze.git
+        mkdir Amatsukaze\lib\x64
+        copy utvideo\Release\utv_core.lib Amatsukaze\lib\x64\utv_core.lib
+        copy AviSynthPlus\build\Output\c_api\AviSynth.lib Amatsukaze\lib\x64\AviSynth.lib
+        cd Amatsukaze
+        msbuild Amatsukaze.sln /m /t:Amatsukaze:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}}
 
 #    - name: Restore NuGet packages
 #      working-directory: ${{env.GITHUB_WORKSPACE}}
