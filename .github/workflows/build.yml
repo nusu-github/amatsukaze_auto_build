@@ -43,6 +43,7 @@ jobs:
           install: >-
             base-devel
             git
+            mingw-w64-x86_64-toolchain
 
       # ビルド
       ## MSYS2使用
@@ -59,6 +60,7 @@ jobs:
             --cross-prefix=x86_64-w64-mingw32- \
             --disable-shared \
             --enable-static \
+            --extra-ldflags=-static \
             --pkg-config-flags=--static \
             --enable-w32threads \
             --disable-autodetect \
