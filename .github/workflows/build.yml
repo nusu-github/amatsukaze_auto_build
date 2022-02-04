@@ -23,14 +23,14 @@ jobs:
       with:
         msbuild-architecture: x64
 
-    - name: Setup MSYS2
-      uses: msys2/setup-msys2@v2
-      with:
-        update: true
-        msystem: MINGW64
-        install: >-
-          base-devel
-          git
+#    - name: Setup MSYS2
+#      uses: msys2/setup-msys2@v2
+#      with:
+#        update: true
+#        msystem: MINGW64
+#        install: >-
+#          base-devel
+#          git
 
     - name: test
       shell: msys2 {0}
