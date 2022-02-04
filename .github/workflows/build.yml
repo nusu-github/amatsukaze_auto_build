@@ -60,7 +60,6 @@ jobs:
             --toolchain=msvc \
             --enable-yasm \
             --enable-shared \
-            --disable-ffserver \
             --disable-avdevice \
             --disable-swscale \
             --disable-doc \
