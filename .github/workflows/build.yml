@@ -27,7 +27,7 @@ jobs:
       - name: CUDA ToolKit install
         uses: Jimver/cuda-toolkit@v0.2.5
         with:
-          method: 'network'
+          method: "network"
           sub-packages: '["nvcc", "visual_studio_integration"]'
 
       - name: vcpkg library install
@@ -35,23 +35,28 @@ jobs:
           vcpkg integrate install
           vcpkg install lz4:x86-windows-static lz4:x64-windows-static
 
-      #    - name: Setup MSYS2
-      #      uses: msys2/setup-msys2@v2
-      #      with:
-      #        update: true
-      #        msystem: MINGW64
-      #        install: >-
-      #          base-devel
-      #          git
-
-      #    - name: test
-      #      shell: msys2 {0}
-      #      run: |
-      #        uname -a
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          msystem: MINGW64
+          install: >-
+            base-devel
+            git
 
       # ビルド
+      ## MSYS2使用
+      ### FFmpeg ビルド
+      - name: FFmpeg build
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        shell: msys2 {0}
+        run: |
+          git clone --depth=1 https://github.com/nekopanda/FFmpeg.git -b amatsukaze
+          cd FFmpeg
+          ./configure --enable-gpl --disable-static --enable-shared --disable-all --disable-autodetect --disable-ffplay --disable-ffprobe
+
       ## MSBuild使用
-      ### Ut Video Codec Suite ビルド 使用するライブラリーの位置:utvideo\Release\utv_core.lib
+      ### Ut Video Codec Suite ビルド 使用するライブラリーの位置:utvideo\x64\Release\utv_core.lib
       - name: Ut Video Codec Suite build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
@@ -79,7 +84,7 @@ jobs:
           copy AviSynthPlus\build\Output\c_api\AviSynth.lib Amatsukaze\lib\x64\AviSynth.lib
           cd Amatsukaze
           nuget restore ${{env.SOLUTION_FILE_PATH}}
-          msbuild Amatsukaze.sln /m /t:Amatsukaze:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}}
+          msbuild Amatsukaze.sln /m /t:Amatsukaze:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v142
 
 #    - name: Restore NuGet packages
 #      working-directory: ${{env.GITHUB_WORKSPACE}}
