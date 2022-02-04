@@ -32,10 +32,10 @@ jobs:
 #          base-devel
 #          git
 
-    - name: test
-      shell: msys2 {0}
-      run: |
-        uname -a
+#    - name: test
+#      shell: msys2 {0}
+#      run: |
+#        uname -a
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
