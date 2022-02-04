@@ -44,7 +44,8 @@ jobs:
       run: |
         git clone https://github.com/umezawatakeshi/utvideo.git
         cd utvideo
-        msbuild utvideo.sln
+        vcpkg install lz4:x86-windows-static lz4:x64-windows-static
+        msbuild utvideo.sln /m /p:Configuration=${{env.BUILD_CONFIGURATION}}
 
 #    - name: Restore NuGet packages
 #      working-directory: ${{env.GITHUB_WORKSPACE}}
