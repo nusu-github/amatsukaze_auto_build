@@ -40,20 +40,27 @@ jobs:
         with:
           update: true
           msystem: MINGW64
-          path-type: inherit
           install: >-
             base-devel
-            yasm
+            git
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-yasm
+            mingw-w64-x86_64-pkg-config
 
       # ビルド
       ## MSYS2使用
       ### FFmpeg ビルド
       - name: FFmpeg build
         working-directory: ${{env.GITHUB_WORKSPACE}}
+        shell: msys2 {0}
         run: |
+          ls
           git clone --depth=1 https://github.com/nekopanda/FFmpeg.git -b amatsukaze
           cd FFmpeg
-          msys2 -c './configure --target-os=win64 --arch=x86_64 --toolchain=msvc --enable-yasm --enable-shared --disable-avdevice --disable-swscale --disable-doc --disable-ffplay --disable-ffprobe --disable-ffmpeg --enable-shared --disable-static'
+          ./configure \
+            --arch=x86_64 \
+            --target-os=mingw64 \
+            --enable-yasm
           make -j$(nproc)
 
       ## MSBuild使用
