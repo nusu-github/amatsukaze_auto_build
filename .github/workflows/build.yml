@@ -43,40 +43,35 @@ jobs:
           install: >-
             base-devel
             git
-            mingw-w64-x86_64-toolchain
-            mingw-w64-x86_64-yasm
-            mingw-w64-x86_64-pkg-config
+            yasm
 
       # ビルド
-      ## MSYS2使用
       ### FFmpeg ビルド
       - name: FFmpeg build
         working-directory: ${{env.GITHUB_WORKSPACE}}
-        shell: msys2 {0}
         run: |
           git clone --depth=1 https://github.com/nekopanda/FFmpeg.git -b amatsukaze
           cd FFmpeg
           ./configure \
+            --target-os=win64 \
             --arch=x86_64 \
-            --target-os=mingw64 \
-            --cross-prefix=x86_64-w64-mingw32- \
-            --disable-shared \
-            --enable-static \
-            --extra-ldflags=-static \
-            --pkg-config-flags=--static \
-            --enable-w32threads \
-            --disable-autodetect \
-            --extra-cflags=-O2 \
-            --enable-optimizations \
-            --disable-gpl \
-            --enable-version3 \
+            --toolchain=msvc \
+            --enable-yasm \
+            --enable-shared \
+            --disable-ffserver \
+            --disable-avdevice \
+            --disable-swscale \
             --disable-doc \
-            --disable-htmlpages \
-            --disable-manpages \
-            --disable-podpages \
-            --disable-txtpages \
-            --disable-debug
-          make
+            --disable-ffplay \
+            --disable-ffprobe \
+            --disable-ffmpeg \
+            --enable-shared \
+            --disable-static \
+            --disable-bzlib \
+            --disable-libopenjpeg \
+            --disable-iconv \
+            --disable-zlib
+          make -j$(nproc)
 
       ## MSBuild使用
       ### Ut Video Codec Suite ビルド 使用するライブラリーの位置:utvideo\x64\Release\utv_core.lib
