@@ -40,9 +40,9 @@ jobs:
         with:
           update: true
           msystem: MINGW64
+          path-type: inherit
           install: >-
             base-devel
-            git
             yasm
 
       # ビルド
