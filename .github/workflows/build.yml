@@ -46,8 +46,10 @@ jobs:
             yasm
 
       # ビルド
+      ## MSYS2使用
       ### FFmpeg ビルド
       - name: FFmpeg build
+        shell: msys2 {0}
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
           git clone --depth=1 https://github.com/nekopanda/FFmpeg.git -b amatsukaze
@@ -66,11 +68,7 @@ jobs:
             --disable-ffprobe \
             --disable-ffmpeg \
             --enable-shared \
-            --disable-static \
-            --disable-bzlib \
-            --disable-libopenjpeg \
-            --disable-iconv \
-            --disable-zlib
+            --disable-static
           make -j$(nproc)
 
       ## MSBuild使用
