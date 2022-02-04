@@ -51,7 +51,7 @@ jobs:
       run: |
         git clone https://github.com/umezawatakeshi/utvideo.git
         cd utvideo
-        msbuild utvideo.sln /m /t:utv_core:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}};Platform=${{env.BUILD_PLATFORM}}
+        msbuild utvideo.sln /m /t:utv_core:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}}
 
 ### AvisyntNeo ビルド
     - name: AvisynthNeo build
@@ -60,7 +60,7 @@ jobs:
         git clone https://github.com/nekopanda/AviSynthPlus.git
         cd AviSynthPlus
         cmake -G "Visual Studio 16 2019" -A x64
-        msbuild build\AviSynth+.sln /m /t:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}};Platform=${{env.BUILD_PLATFORM}}
+        msbuild build\AviSynth+.sln /m /t:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}}
 
 #    - name: Restore NuGet packages
 #      working-directory: ${{env.GITHUB_WORKSPACE}}
