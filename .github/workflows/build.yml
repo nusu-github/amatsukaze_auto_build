@@ -24,7 +24,7 @@ jobs:
         with:
           msbuild-architecture: x64
 
-      - name: cuda-toolkit
+      - name: CUDA ToolKit install
         uses: Jimver/cuda-toolkit@v0.2.5
         with:
           method: 'network'
@@ -75,9 +75,10 @@ jobs:
         run: |
           git clone --depth=1 --recurse-submodules --shallow-submodules https://github.com/nekopanda/Amatsukaze.git
           mkdir Amatsukaze\lib\x64
-          copy utvideo\Release\utv_core.lib Amatsukaze\lib\x64\utv_core.lib
+          copy utvideo\x64\Release\utv_core.lib Amatsukaze\lib\x64\utv_core.lib
           copy AviSynthPlus\build\Output\c_api\AviSynth.lib Amatsukaze\lib\x64\AviSynth.lib
           cd Amatsukaze
+          nuget restore ${{env.SOLUTION_FILE_PATH}}
           msbuild Amatsukaze.sln /m /t:Amatsukaze:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}}
 
 #    - name: Restore NuGet packages
