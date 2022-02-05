@@ -19,22 +19,26 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      # MSBuild パス追加
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v1.1
         with:
           msbuild-architecture: x64
 
-      #- name: CUDA ToolKit install
-      #  uses: Jimver/cuda-toolkit@v0.2.5
-      #  with:
-      #    method: "network"
-      #    sub-packages: '["nvcc", "visual_studio_integration"]'
+      # CUDA ToolKit セットアップ
+      - name: Setup CUDA ToolKit
+        uses: Jimver/cuda-toolkit@v0.2.5
+        with:
+          method: "network"
+          sub-packages: '["nvcc", "visual_studio_integration"]'
 
-      #- name: vcpkg library install
-      #  run: |
-      #    vcpkg integrate install
-      #    vcpkg install lz4:x86-windows-static lz4:x64-windows-static
+      # vcpkg セットアップ
+      - name: Setup vcpkg
+        run: |
+          vcpkg integrate install
+          vcpkg install lz4:x86-windows-static lz4:x64-windows-static
 
+      # MSYS2 セットアップ
       - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
         with:
@@ -43,28 +47,39 @@ jobs:
           install: >-
             base-devel
             git
+            diffutils
             mingw-w64-x86_64-toolchain
             mingw-w64-x86_64-yasm
             mingw-w64-x86_64-pkg-config
 
-      # ビルド
-      ## MSYS2使用
-      ### FFmpeg ビルド
+      # Amatsukaze同梱&依存ライブラリ ビルド
+      ## FFmpeg ビルド
       - name: FFmpeg build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         shell: msys2 {0}
         run: |
-          ls
           git clone --depth=1 https://github.com/nekopanda/FFmpeg.git -b amatsukaze
           cd FFmpeg
           ./configure \
             --arch=x86_64 \
             --target-os=mingw64 \
-            --enable-yasm
+            --enable-yasm \
+            --disable-static \
+            --enable-shared \
+            --disable-autodetect \
+            --disable-ffmpeg \
+            --disable-ffplay \
+            --disable-ffprobe \
+            --disable-doc \
+            --disable-htmlpages \
+            --disable-manpages \
+            --disable-podpages \
+            --disable-txtpages \
+            --disable-everything \
+            --disable-debug
           make -j$(nproc)
 
-      ## MSBuild使用
-      ### Ut Video Codec Suite ビルド 使用するライブラリーの位置:utvideo\x64\Release\utv_core.lib
+      ## Ut Video Codec Suite ビルド 使用するライブラリーの位置:utvideo\x64\Release\utv_core.lib
       - name: Ut Video Codec Suite build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
@@ -72,7 +87,7 @@ jobs:
           cd utvideo
           msbuild utvideo.sln /m /t:utv_core:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:PostBuildEventUseInBuild=false
 
-      ### AvisyntNeo ビルド 使用するライブラリーの位置:AviSynthPlus\build\Output\c_api\AviSynth.lib
+      ## AvisyntNeo ビルド 使用するライブラリーの位置:AviSynthPlus\build\Output\c_api\AviSynth.lib
       - name: AvisynthNeo build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
@@ -82,7 +97,56 @@ jobs:
           cmake .. -G "Visual Studio 16 2019" -A x64
           msbuild AviSynth+.sln /m /t:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}}
 
-      ### Amatsukaze ビルド
+      ## join_logo_scp ビルド
+      - name: join_logo_scp build
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          git clone --depth=1 https://github.com/nekopanda/join_logo_scp.git
+          cd join_logo_scp/src
+          nuget restore ${{env.SOLUTION_FILE_PATH}}
+          msbuild join_logo_scp.sln /m /t:Amatsukaze:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v142
+
+      ## chapter_exe ビルド
+      - name: chapter_exe build
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          git clone --depth=1 https://github.com/nekopanda/chapter_exe.git
+          cd chapter_exe/src
+          nuget restore ${{env.SOLUTION_FILE_PATH}}
+          msbuild chapter_exe.sln /m /t:Amatsukaze:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v142
+
+      ## mp4box ビルド
+      - name: mp4box build
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          git clone --depth=1 https://github.com/gpac/gpac.git
+          cd gpac_public\build\msvc14
+          msbuild gpac.sln /m /t:Rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v142
+
+      ## Caption.dll ビルド
+      - name: Caption.dll build
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          git clone --depth=1 https://github.com/nekopanda/TVCaptionMod2.git
+          cd TVCaptionMod2/Caption_src
+          nuget restore ${{env.SOLUTION_FILE_PATH}}
+          msbuild Caption.sln /m /t:Amatsukaze:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v142
+
+      ## mkvtoolnix ビルド
+      - name: mkvtoolnix build
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        shell: msys2 {0}
+        run: |
+          git clone --depth=1 https://gitlab.com/mbunkus/mkvtoolnix.git
+          cd mkvtoolnix
+          ./packaging/windows/setup_cross_compilation_env.sh
+          ./packaging/windows/setup_cross_compilation_env.sh
+          nuget restore ${{env.SOLUTION_FILE_PATH}}
+          msbuild Amatsukaze.sln /m /t:Amatsukaze:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v142
+
+      # Amatsukaze同梱AviSynthプラグイン ビルド
+
+      ## Amatsukaze本体 ビルド
       - name: Amatsukaze build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
