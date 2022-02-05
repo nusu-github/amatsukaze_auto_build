@@ -49,6 +49,7 @@ jobs:
             diffutils
             yasm
             git
+            pkg-config
             mingw-w64-x86_64-gcc
 
       # Amatsukaze同梱&依存ライブラリ ビルド
@@ -85,6 +86,7 @@ jobs:
             --disable-protocols \
             --disable-devices \
             --disable-debug \
+            --disable-dxva2 \
             --pkg-config-flags=--static \
             --extra-libs=-static \
             --extra-cflags=--static
