@@ -133,7 +133,7 @@ jobs:
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
           git clone --depth=1 https://github.com/gpac/gpac.git
-          cd gpac_public\build\msvc14
+          cd gpac\build\msvc14
           msbuild gpac.sln /m /t:Rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v142
 
       ## Caption.dll ビルド
