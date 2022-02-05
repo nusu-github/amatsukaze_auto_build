@@ -61,22 +61,33 @@ jobs:
           git clone --depth=1 https://github.com/nekopanda/FFmpeg.git -b amatsukaze
           cd FFmpeg
           ./configure \
-            --arch=x86_64 \
+            --prefix=output \
             --target-os=mingw64 \
-            --enable-yasm \
             --disable-static \
             --enable-shared \
-            --disable-autodetect \
             --disable-ffmpeg \
             --disable-ffplay \
             --disable-ffprobe \
+            --disable-gpl \
+            --enable-version3 \
+            --disable-logging \
             --disable-doc \
             --disable-htmlpages \
             --disable-manpages \
             --disable-podpages \
             --disable-txtpages \
-            --disable-everything \
-            --disable-debug
+            --disable-avdevice \
+            --disable-postproc \
+            --disable-encoders \
+            --disable-hwaccels \
+            --disable-muxers \
+            --disable-demuxers \
+            --disable-parsers \
+            --disable-protocols \
+            --disable-devices \
+            --disable-debug \
+            --extra-ldflags="-static" \
+            --pkg-config-flags="--static"
           make -j$(nproc)
 
       ## Ut Video Codec Suite ビルド 使用するライブラリーの位置:utvideo\x64\Release\utv_core.lib
@@ -104,7 +115,7 @@ jobs:
           git clone --depth=1 https://github.com/nekopanda/join_logo_scp.git
           cd join_logo_scp/src
           nuget restore ${{env.SOLUTION_FILE_PATH}}
-          msbuild join_logo_scp.sln /m /t:Amatsukaze:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v142
+          msbuild join_logo_scp.sln /m /t:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v142
 
       ## chapter_exe ビルド
       - name: chapter_exe build
@@ -113,7 +124,7 @@ jobs:
           git clone --depth=1 https://github.com/nekopanda/chapter_exe.git
           cd chapter_exe/src
           nuget restore ${{env.SOLUTION_FILE_PATH}}
-          msbuild chapter_exe.sln /m /t:Amatsukaze:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v142
+          msbuild chapter_exe.sln /m /t:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v142
 
       ## mp4box ビルド
       - name: mp4box build
@@ -130,19 +141,18 @@ jobs:
           git clone --depth=1 https://github.com/nekopanda/TVCaptionMod2.git
           cd TVCaptionMod2/Caption_src
           nuget restore ${{env.SOLUTION_FILE_PATH}}
-          msbuild Caption.sln /m /t:Amatsukaze:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v142
+          msbuild Caption.sln /m /t:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v142
 
       ## mkvtoolnix ビルド
       - name: mkvtoolnix build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         shell: msys2 {0}
+        env:
+          INSTALL_DIR: output
         run: |
           git clone --depth=1 https://gitlab.com/mbunkus/mkvtoolnix.git
           cd mkvtoolnix
           ./packaging/windows/setup_cross_compilation_env.sh
-          ./packaging/windows/setup_cross_compilation_env.sh
-          nuget restore ${{env.SOLUTION_FILE_PATH}}
-          msbuild Amatsukaze.sln /m /t:Amatsukaze:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v142
 
       # Amatsukaze同梱AviSynthプラグイン ビルド
 
