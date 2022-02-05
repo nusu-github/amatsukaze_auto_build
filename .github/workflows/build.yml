@@ -45,12 +45,11 @@ jobs:
           update: true
           msystem: MINGW64
           install: >-
-            base-devel
-            git
+            make
             diffutils
-            mingw-w64-x86_64-toolchain
-            mingw-w64-x86_64-yasm
-            mingw-w64-x86_64-pkg-config
+            yasm
+            git
+            mingw-w64-x86_64-gcc
 
       # Amatsukaze同梱&依存ライブラリ ビルド
       ## FFmpeg ビルド
@@ -86,8 +85,9 @@ jobs:
             --disable-protocols \
             --disable-devices \
             --disable-debug \
-            --extra-ldflags="-static" \
-            --pkg-config-flags="--static"
+            --pkg-config-flags=--static \
+            --extra-libs=-static \
+            --extra-cflags=--static
           make -j$(nproc)
 
       ## Ut Video Codec Suite ビルド 使用するライブラリーの位置:utvideo\x64\Release\utv_core.lib
