@@ -9,8 +9,10 @@ env:
   # Configuration type to build.
   # You can convert this to a build matrix if you need coverage of multiple configuration types.
   # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-  BUILD_CONFIGURATION: Release
-  BUILD_PLATFORM: x64
+  CONFIGURATION: Release
+  PLATFORM: x64
+  PLATFORM_VERSION: 10
+  PLATFORM_TOOLSET: v142
 
 jobs:
   build:
@@ -29,6 +31,7 @@ jobs:
       - name: Setup CUDA ToolKit
         uses: Jimver/cuda-toolkit@v0.2.5
         with:
+          cuda: "11.2"
           method: "network"
           sub-packages: '["nvcc", "visual_studio_integration"]'
 
@@ -36,7 +39,7 @@ jobs:
       - name: Setup vcpkg
         run: |
           vcpkg integrate install
-          vcpkg install lz4:x86-windows-static lz4:x64-windows-static
+          vcpkg install lz4:x64-windows-static zlib-ng:x64-windows-static boost:x64-windows-static openssl:x64-windows-static
 
       # MSYS2 セットアップ
       - name: Setup MSYS2
@@ -50,47 +53,50 @@ jobs:
             yasm
             git
             pkg-config
+            cmake
             mingw-w64-x86_64-gcc
 
+      ## VisualStudioとNASMを統合
+      - name: Setup VisualStudio integration NASM
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          git clone https://github.com/ShiftMediaProject/VSNASM.git
+          VSNASM/install_script.bat
+
       # Amatsukaze同梱&依存ライブラリ ビルド
+
       ## FFmpeg ビルド
       - name: FFmpeg build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         shell: msys2 {0}
         run: |
-          git clone --depth=1 https://github.com/nekopanda/FFmpeg.git -b amatsukaze
+          git clone --depth=1 https://github.com/FFmpeg/FFmpeg.git -b release/4.4
+          copy mpeg2dec.patch FFmpeg/mpeg2dec.patch
           cd FFmpeg
+          git am mpeg2dec.patch
           ./configure \
             --prefix=output \
             --target-os=mingw64 \
+            --disable-gpl \
+            --enable-version3 \
             --disable-static \
             --enable-shared \
             --disable-ffmpeg \
             --disable-ffplay \
             --disable-ffprobe \
-            --disable-gpl \
-            --enable-version3 \
             --disable-logging \
             --disable-doc \
             --disable-htmlpages \
             --disable-manpages \
             --disable-podpages \
             --disable-txtpages \
-            --disable-avdevice \
-            --disable-postproc \
-            --disable-encoders \
-            --disable-hwaccels \
-            --disable-muxers \
-            --disable-demuxers \
-            --disable-parsers \
-            --disable-protocols \
-            --disable-devices \
             --disable-debug \
             --disable-dxva2 \
             --pkg-config-flags=--static \
             --extra-libs=-static \
             --extra-cflags=--static
           make -j$(nproc)
+          make -j$(nproc) install
 
       ## Ut Video Codec Suite ビルド 使用するライブラリーの位置:utvideo\x64\Release\utv_core.lib
       - name: Ut Video Codec Suite build
@@ -98,7 +104,7 @@ jobs:
         run: |
           git clone --depth=1 https://github.com/umezawatakeshi/utvideo.git
           cd utvideo
-          msbuild utvideo.sln /m /t:utv_core:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:PostBuildEventUseInBuild=false
+          msbuild utvideo.sln /m /t:utv_core:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}} /p:PostBuildEventUseInBuild=false
 
       ## AvisyntNeo ビルド 使用するライブラリーの位置:AviSynthPlus\build\Output\c_api\AviSynth.lib
       - name: AvisynthNeo build
@@ -108,16 +114,16 @@ jobs:
           mkdir AviSynthPlus/build
           cd AviSynthPlus/build
           cmake .. -G "Visual Studio 16 2019" -A x64
-          msbuild AviSynth+.sln /m /t:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}}
+          msbuild AviSynth+.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 
       ## join_logo_scp ビルド
       - name: join_logo_scp build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
-          git clone --depth=1 https://github.com/nekopanda/join_logo_scp.git
+          git clone --depth=1 https://github.com/yobibi/join_logo_scp.git
           cd join_logo_scp/src
           nuget restore ${{env.SOLUTION_FILE_PATH}}
-          msbuild join_logo_scp.sln /m /t:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v142
+          msbuild join_logo_scp.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 
       ## chapter_exe ビルド
       - name: chapter_exe build
@@ -126,56 +132,114 @@ jobs:
           git clone --depth=1 https://github.com/nekopanda/chapter_exe.git
           cd chapter_exe/src
           nuget restore ${{env.SOLUTION_FILE_PATH}}
-          msbuild chapter_exe.sln /m /t:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v142
+          msbuild chapter_exe.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 
       ## mp4box ビルド
       - name: mp4box build
         working-directory: ${{env.GITHUB_WORKSPACE}}
+        env:
+          CONFIGURATION: Release - MP4Box_only
         run: |
-          git clone --depth=1 https://github.com/gpac/gpac.git
+          git clone --depth=1 --recurse-submodules --shallow-submodules https://github.com/gpac/gpac.git
           cd gpac\build\msvc14
-          msbuild gpac.sln /m /t:Rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v142
+          msbuild gpac.sln /m /t:Rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 
       ## Caption.dll ビルド
       - name: Caption.dll build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
-          git clone --depth=1 https://github.com/nekopanda/TVCaptionMod2.git
+          git clone --depth=1 https://github.com/tsukumijima/TVCaptionMod2.git
           cd TVCaptionMod2/Caption_src
           nuget restore ${{env.SOLUTION_FILE_PATH}}
-          msbuild Caption.sln /m /t:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v142
+          msbuild Caption.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 
       ## mkvtoolnix ビルド
-      - name: mkvtoolnix build
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        shell: msys2 {0}
-        env:
-          INSTALL_DIR: output
-        run: |
-          git clone --depth=1 https://gitlab.com/mbunkus/mkvtoolnix.git
-          cd mkvtoolnix
-          ./packaging/windows/setup_cross_compilation_env.sh
+      # 保留
 
       # Amatsukaze同梱AviSynthプラグイン ビルド
 
-      ## Amatsukaze本体 ビルド
+      ## L-SMASH ビルド
+      - name: L-SMASH build
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        env:
+          CONFIGURATION: CLIRelease
+        run: |
+          git clone --depth=1 https://github.com/rigaya/l-smash.git -b add_ver_info
+          cd l-smash
+          msbuild L-SMASH.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+
+      ## LSMASH Works ビルド
+      - name: L-SMASH-Works build
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          git clone --depth=1 https://github.com/Mr-Ojii/L-SMASH-Works.git
+          xcopy FFmpeg\output\include L-SMASH-Works\include /E /Y
+          cd L-SMASH-Works\AviSynth
+          msbuild LSMASHSourceVCX.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+
+      ## RgTools ビルド
+      - name: RgTools build
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          git clone --depth=1 https://github.com/pinterf/RgTools.git
+          cd RgTools
+          msbuild RgTools.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+
+      ## NNEDI3 ビルド
+      # 保留
+
+      ## mvtools ビルド
+      - name: mvtools build
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          git clone --depth=1 https://github.com/pinterf/mvtools.git
+          cd mvtools
+          msbuild mvtools.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+
+      ## masktools ビルド
+      - name: masktools build
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        env:
+          CONFIGURATION: release-boost
+        run: |
+          git clone --depth=1 https://github.com/pinterf/masktools.git
+          cd masktools
+          msbuild masktools.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+
+      ## AviSynthCUDAFilters(AvsCUDA,KTGMC,KNNEDI3,KFM) ビルド
+      - name: AviSynthCUDAFilters build
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          git clone --depth=1 --recurse-submodules --shallow-submodules https://github.com/pinterf/AviSynthCUDAFilters.git
+          cd AviSynthCUDAFilters
+          rm -fr nnedi3 masktools
+          git clone https://github.com/pinterf/NNEDI3.git -b cuda nnedi3
+          git clone https://github.com/pinterf/masktools.git -b cuda masktools
+          msbuild AviSynthCUDAFilters.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+
+      ## D3DVP ビルド
+      - name: D3DVP build
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          git clone --depth=1 --recurse-submodules --shallow-submodules https://github.com/nusu-github/D3DVP.git
+          cd D3DVP
+          msbuild D3DVP.sln /m /t:D3DVP:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+
+      # Amatsukaze本体 ビルド
       - name: Amatsukaze build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
-          git clone --depth=1 --recurse-submodules --shallow-submodules https://github.com/nekopanda/Amatsukaze.git
+          git clone --depth=1 --recurse-submodules --shallow-submodules https://github.com/R2Lish/Amatsukaze.git
           mkdir Amatsukaze\lib\x64
           copy utvideo\x64\Release\utv_core.lib Amatsukaze\lib\x64\utv_core.lib
           copy AviSynthPlus\build\Output\c_api\AviSynth.lib Amatsukaze\lib\x64\AviSynth.lib
           cd Amatsukaze
+          rm -fr TVCaptionMod2
+          git clone --depth=1 https://github.com/tsukumijima/TVCaptionMod2.git
+          rm -f NicoJK18Client\Program.cs
+          mkdir NicoJK18Client\Properties
+          wget https://raw.githubusercontent.com/nekopanda/Amatsukaze/nicojk18/NicoJK18Client/Properties/AssemblyInfo.cs -OutFile NicoJK18Client\Properties\AssemblyInfo.cs
+          wget https://raw.githubusercontent.com/nekopanda/Amatsukaze/nicojk18/NicoJK18Client/Program.cs -OutFile NicoJK18Client\Program.cs
+          wget https://raw.githubusercontent.com/nekopanda/Amatsukaze/nicojk18/NicoJK18Client/App.config -OutFile NicoJK18Client\App.config
           nuget restore ${{env.SOLUTION_FILE_PATH}}
-          msbuild Amatsukaze.sln /m /t:Amatsukaze:rebuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v142
-
-#    - name: Restore NuGet packages
-#      working-directory: ${{env.GITHUB_WORKSPACE}}
-#      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
-
-#    - name: Build
-#      working-directory: ${{env.GITHUB_WORKSPACE}}
-#      # Add additional options to the MSBuild command line here (like platform or verbosity level).
-#      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
-#      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
+          msbuild Amatsukaze.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
