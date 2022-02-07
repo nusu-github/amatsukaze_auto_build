@@ -106,7 +106,7 @@ jobs:
         run: |
           git clone --depth=1 https://github.com/umezawatakeshi/utvideo.git
           cd utvideo
-          msbuild utvideo.sln /m /t:utv_core:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}} /p:PostBuildEventUseInBuild=false
+          msbuild utvideo.sln /m /t:utv_core:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PostBuildEventUseInBuild=false
 
       ## AvisyntNeo ビルド 使用するライブラリーの位置:AviSynthPlus\build\Output\c_api\AviSynth.lib
       - name: AvisynthNeo build
