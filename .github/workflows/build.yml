@@ -71,7 +71,7 @@ jobs:
         shell: msys2 {0}
         run: |
           git clone --depth=1 https://github.com/FFmpeg/FFmpeg.git -b release/4.4
-          copy mpeg2dec.patch FFmpeg/mpeg2dec.patch
+          cp mpeg2dec.patch FFmpeg/mpeg2dec.patch
           cd FFmpeg
           git am mpeg2dec.patch
           ./configure \
