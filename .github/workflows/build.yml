@@ -36,7 +36,10 @@ jobs:
           sub-packages: '["nvcc", "visual_studio_integration"]'
 
       # vcpkg セットアップ
-#
+      - name: Setup vcpkg
+        run: |
+          vcpkg integrate install
+          vcpkg install lz4 zlib-ng boost openssl --triplet x64-windows-static
 
       # MSYS2 セットアップ
       - name: Setup MSYS2
