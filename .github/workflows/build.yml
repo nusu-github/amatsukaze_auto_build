@@ -39,7 +39,7 @@ jobs:
       - name: Setup vcpkg
         run: |
           vcpkg integrate install
-          vcpkg install lz4:x64-windows-static zlib-ng:x64-windows-static boost:x64-windows-static openssl:x64-windows-static
+          vcpkg install lz4 zlib-ng boost openssl --triplet x64-windows-static
 
       # MSYS2 セットアップ
       - name: Setup MSYS2
@@ -62,6 +62,13 @@ jobs:
         run: |
           git clone https://github.com/ShiftMediaProject/VSNASM.git
           VSNASM/install_script.bat
+
+      ## Gitにaction用userを設定
+      - name: Setup Git user
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
 
       # Amatsukaze同梱&依存ライブラリ ビルド
 
@@ -131,7 +138,6 @@ jobs:
         run: |
           git clone --depth=1 https://github.com/nekopanda/chapter_exe.git
           cd chapter_exe/src
-          nuget restore ${{env.SOLUTION_FILE_PATH}}
           msbuild chapter_exe.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 
       ## mp4box ビルド
@@ -143,15 +149,6 @@ jobs:
           git clone --depth=1 --recurse-submodules --shallow-submodules https://github.com/gpac/gpac.git
           cd gpac\build\msvc14
           msbuild gpac.sln /m /t:Rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
-
-      ## Caption.dll ビルド
-      - name: Caption.dll build
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: |
-          git clone --depth=1 https://github.com/tsukumijima/TVCaptionMod2.git
-          cd TVCaptionMod2/Caption_src
-          nuget restore ${{env.SOLUTION_FILE_PATH}}
-          msbuild Caption.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 
       ## mkvtoolnix ビルド
       # 保留
@@ -242,4 +239,13 @@ jobs:
           wget https://raw.githubusercontent.com/nekopanda/Amatsukaze/nicojk18/NicoJK18Client/Program.cs -OutFile NicoJK18Client\Program.cs
           wget https://raw.githubusercontent.com/nekopanda/Amatsukaze/nicojk18/NicoJK18Client/App.config -OutFile NicoJK18Client\App.config
           nuget restore ${{env.SOLUTION_FILE_PATH}}
-          msbuild Amatsukaze.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+          msbuild Amatsukaze.sln /m /t:AmatsukazeGUI:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+          msbuild Amatsukaze.sln /m /t:AmatsukazeCLI:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+          msbuild Amatsukaze.sln /m /t:Caption:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+          msbuild Amatsukaze.sln /m /t:BatchHashChecker:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+          msbuild Amatsukaze.sln /m /t:AmatsukazeAddTask:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+          msbuild Amatsukaze.sln /m /t:AmatsukazeServer:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+          msbuild Amatsukaze.sln /m /t:AmatsukazeServerCLI:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+          msbuild Amatsukaze.sln /m /t:ScriptCommand:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+          msbuild Amatsukaze.sln /m /t:NicoJK18Client:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+          msbuild Amatsukaze.sln /m /t:FileCutter:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
