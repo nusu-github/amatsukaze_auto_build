@@ -143,7 +143,7 @@ jobs:
         run: |
           git clone --depth=1 --recurse-submodules --shallow-submodules https://github.com/gpac/gpac.git
           cd gpac\build\msvc14
-          msbuild gpac.sln /m /t:Rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+          msbuild gpac.sln /m /t:Rebuild /p:Configuration="${{env.CONFIGURATION}}" /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 
       ## mkvtoolnix ビルド
       # 保留
