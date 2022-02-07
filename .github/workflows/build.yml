@@ -36,10 +36,7 @@ jobs:
           sub-packages: '["nvcc", "visual_studio_integration"]'
 
       # vcpkg セットアップ
-      - name: Setup vcpkg
-        run: |
-          vcpkg integrate install
-          vcpkg install lz4 zlib-ng boost openssl --triplet x64-windows-static
+#
 
       # MSYS2 セットアップ
       - name: Setup MSYS2
@@ -63,13 +60,6 @@ jobs:
           git clone https://github.com/ShiftMediaProject/VSNASM.git
           VSNASM/install_script.bat
 
-      ## Gitにaction用userを設定
-      - name: Setup Git user
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
-
       # Amatsukaze同梱&依存ライブラリ ビルド
 
       ## FFmpeg ビルド
@@ -77,6 +67,8 @@ jobs:
         working-directory: ${{env.GITHUB_WORKSPACE}}
         shell: msys2 {0}
         run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
           git clone --depth=1 https://github.com/FFmpeg/FFmpeg.git -b release/4.4
           cp mpeg2dec.patch FFmpeg/mpeg2dec.patch
           cd FFmpeg
