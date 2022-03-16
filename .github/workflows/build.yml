@@ -133,6 +133,8 @@ jobs:
           CXXFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3 -stdlib=libc++
           LDFLAGS: -static -fuse-ld=lld -unwindlib=libunwind -lc++ -lsupc++ -lc++abi -lpthread
         run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
           git clone https://github.com/rigaya/l-smash.git -b add_ver_info l-smash_msys2
           cd l-smash_msys2
           git am ../patch/0001-Changed-to-POSIX-standard.patch
@@ -216,8 +218,6 @@ jobs:
           CXXFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3 -stdlib=libc++
           LDFLAGS: -static -unwindlib=libunwind -lc++ -lsupc++ -lc++abi -lpthread
         run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
           git clone --depth=1 https://github.com/FFmpeg/FFmpeg.git -b release/4.3
           cd FFmpeg
           git am ../patch/0001-mpeg2dec-add-DC-table.patch
@@ -276,7 +276,7 @@ jobs:
           cd AviSynthPlus
           Get-Content CMakeLists.txt | foreach { $_ -replace 'v141_xp' , 'v143' } | Out-File -Encoding UTF8 CMakeLists.txt.tmp
           xcopy CMakeLists.txt.tmp CMakeLists.txt /Y
-          cmake -G "Visual Studio 17 2022" -S . -B build -A x64 -DBUILD_SHARED_LIBS=true -DCMAKE_CONFIGURATION_TYPES=Release
+          cmake -G "Visual Studio 16 2019" -S . -B build -A x64 -DBUILD_SHARED_LIBS=true -DCMAKE_CONFIGURATION_TYPES=Release
           cmake --build build --config Release --target AvsCore -- /m
 
       ## join_logo_scp ビルド
@@ -325,6 +325,8 @@ jobs:
       - name: LSMASH Works build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
           git clone https://github.com/Mr-Ojii/L-SMASH-Works.git
           mkdir L-SMASH-Works\build64_msvc\lib
           xcopy zlib-ng\build\zlib.lib L-SMASH-Works\build64_msvc\lib /Y
@@ -334,8 +336,7 @@ jobs:
           xcopy FFmpeg\output\include L-SMASH-Works\include /Y /E
           xcopy FFmpeg\output\lib L-SMASH-Works\build64_msvc\lib /Y
           cd L-SMASH-Works\AviSynth
-          Get-Content LSMASHSourceVCX.vcxproj | foreach { $_ -replace 'LSMASH_API_IMPORTS;' , 'LSMASH_API_IMPORTS;XXH_INLINE_ALL;' } > LSMASHSourceVCX.vcxproj.tmp
-          xcopy LSMASHSourceVCX.vcxproj.tmp LSMASHSourceVCX.vcxproj /Y
+          git am ..\..\patch\0001-Add-XXH_INLINE_ALL.patch
           msbuild LSMASHSourceVCX.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 
       ## QTGMC ビルド
@@ -358,6 +359,8 @@ jobs:
       - name: NNEDI3 build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
           git clone --depth 1 https://github.com/jpsdr/NNEDI3.git
           cd NNEDI3
           git am ../patch/asm_FMA_x64-enable.patch
@@ -385,11 +388,18 @@ jobs:
       - name: AvsCUDA,KTGMC,KNNEDI3,KFM build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
-          git clone --depth 1 --recurse-submodules --shallow-submodules --remote-submodules https://github.com/nekopanda/AviSynthCUDAFilters.git
+          git clone --depth 1 --recurse-submodules --shallow-submodules --remote-submodules -j2 https://github.com/nekopanda/AviSynthCUDAFilters.git
           xcopy AviSynthPlus\build\Output\c_api\AviSynth.lib AviSynthCUDAFilters\lib\x64 /Y
           cd AviSynthCUDAFilters
           Get-Content AvsCUDA\AvsCUDA.vcxproj | foreach { $_ -replace 'CUDA 8.0' , 'CUDA 11.6' } | foreach { $_ -replace 'compute_61,sm_61;compute_35,sm_35' , 'compute_35,sm_35;compute_52,sm_52;compute_61,sm_61;compute_75,sm_75;compute_86,sm_86' } | foreach { $_ -replace '<ConformanceMode>true</ConformanceMode>' , '<ConformanceMode>false</ConformanceMode>' } | foreach { $_ -replace '<AdditionalOptions>-Xcompiler \"/wd 4819\"', '<AdditionalOptions>-std=c++17 -Xcompiler \"/std:c++17\" -Xcompiler \"/wd 4819\"' } > AvsCUDA.vcxproj.tmp
-          /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+          Get-Content KFM\KFM.vcxproj | foreach { $_ -replace 'CUDA 8.0' , 'CUDA 11.6' } | foreach { $_ -replace 'compute_61,sm_61;compute_35,sm_35' , 'compute_35,sm_35;compute_52,sm_52;compute_61,sm_61;compute_75,sm_75;compute_86,sm_86' } > KFM.vcxproj.tmp
+          Get-Content KTGMC\KTGMC.vcxproj | foreach { $_ -replace 'CUDA 8.0' , 'CUDA 11.6' } | foreach { $_ -replace 'compute_61,sm_61;compute_35,sm_35' , 'compute_35,sm_35;compute_52,sm_52;compute_61,sm_61;compute_75,sm_75;compute_86,sm_86' }  > KTGMC.vcxproj.tmp
+          Get-Content nnedi3\nnedi3\nnedi3.vcxproj | foreach { $_ -replace 'CUDA 8.0' , 'CUDA 11.6' } | foreach { $_ -replace 'compute_61,sm_61;compute_35,sm_35' , 'compute_35,sm_35;compute_52,sm_52;compute_61,sm_61;compute_75,sm_75;compute_86,sm_86' } > nnedi3.vcxproj.tmp
+          xcopy AvsCUDA.vcxproj.tmp AvsCUDA\AvsCUDA.vcxproj /Y
+          xcopy KFM.vcxproj.tmp KFM\KFM.vcxproj /Y
+          xcopy KTGMC.vcxproj.tmp KTGMC\KTGMC.vcxproj /Y
+          xcopy nnedi3.vcxproj.tmp nnedi3\nnedi3\nnedi3.vcxproj /Y
+          msbuild AviSynthCUDAFilters.sln /m /t:AvsCUDA:rebuild /t:KTGMC:rebuild /t:KNNEDI3:rebuild /t:KFM:rebuild /t:KUtil:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 
       ## SMDegrain ビルド
       - name: SMDegrain build
@@ -405,6 +415,7 @@ jobs:
           xcopy AviSynthPlus\build\Output\c_api\AviSynth.lib D3DVP\lib\x64 /Y
           cd D3DVP
           msbuild D3DVP.sln /m /t:D3DVP:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+
       ## yadifmod2 ビルド
       - name: yadifmod2 build
         working-directory: ${{env.GITHUB_WORKSPACE}}
