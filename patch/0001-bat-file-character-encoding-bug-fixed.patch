@@ -1,0 +1,25 @@
+From 4903de0c98e2963b5971690aaee03f6af1f7da38 Mon Sep 17 00:00:00 2001
+From: nusu-github <29514220+nusu-github@users.noreply.github.com>
+Date: Mon, 14 Mar 2022 16:46:37 +0900
+Subject: [PATCH] bat file character encoding bug fixed
+
+---
+ AmatsukazeGUI/ViewModels/MakeScriptViewModel.cs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/AmatsukazeGUI/ViewModels/MakeScriptViewModel.cs b/AmatsukazeGUI/ViewModels/MakeScriptViewModel.cs
+index 749f163..13e0925 100644
+--- a/AmatsukazeGUI/ViewModels/MakeScriptViewModel.cs
++++ b/AmatsukazeGUI/ViewModels/MakeScriptViewModel.cs
+@@ -217,7 +217,7 @@ namespace Amatsukaze.ViewModels
+ 
+             try
+             {
+-                File.WriteAllText(saveFileDialog.FileName, sb.ToString(), Encoding.Default);
++                File.WriteAllText(saveFileDialog.FileName, sb.ToString(), Encoding.GetEncoding(0));
+             }
+             catch (Exception e)
+             {
+-- 
+2.35.1.windows.2
+

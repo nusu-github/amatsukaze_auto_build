@@ -1,0 +1,24 @@
+From f013e8fb1ccc30850711b561ab25a717936ef8de Mon Sep 17 00:00:00 2001
+From: nusu-github <29514220+nusu-github@users.noreply.github.com>
+Date: Sat, 12 Mar 2022 17:06:29 +0900
+Subject: [PATCH] asm_FMA_x64 enable
+
+---
+ nnedi3/nnedi3.vcxproj | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/nnedi3/nnedi3.vcxproj b/nnedi3/nnedi3.vcxproj
+index 1bd1996..f465902 100644
+--- a/nnedi3/nnedi3.vcxproj
++++ b/nnedi3/nnedi3.vcxproj
+@@ -461,7 +461,6 @@
+       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Intel_SSE4.2|x64'">true</ExcludedFromBuild>
+       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Intel_XP_Core2_AVX2|x64'">true</ExcludedFromBuild>
+-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+     </MASM>
+     <MASM Include="PlanarFrame_asm.asm">
+       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+-- 
+2.35.1.windows.2
+

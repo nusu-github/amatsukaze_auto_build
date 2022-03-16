@@ -1,0 +1,107 @@
+From 63da4d96b152c0c73977ed51553c7a24a4a54f5d Mon Sep 17 00:00:00 2001
+From: nusu-github <29514220+nusu-github@users.noreply.github.com>
+Date: Sat, 12 Mar 2022 16:30:32 +0900
+Subject: [PATCH] Changed to POSIX standard
+
+---
+ cli/muxer.c          | 6 +++---
+ cli/remuxer.c        | 6 +++---
+ cli/timelineeditor.c | 6 +++---
+ 3 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/cli/muxer.c b/cli/muxer.c
+index cf01ab0..18fa839 100644
+--- a/cli/muxer.c
++++ b/cli/muxer.c
+@@ -1092,7 +1092,7 @@ static int do_mux( muxer_t *muxer )
+     uint64_t total_media_size = 0;
+     uint32_t progress_pos = 0;
+     struct timespec time_update;
+-    timespec_get(&time_update, TIME_UTC);
++	clock_gettime(CLOCK_REALTIME, &time_update);
+     while( 1 )
+     {
+         input_t *input = &muxer->input[current_input_number - 1];
+@@ -1203,7 +1203,7 @@ static int do_mux( muxer_t *muxer )
+                     {
+                         /* Print, per 1sec */
+                         struct timespec time_curr;
+-                        timespec_get(&time_curr, TIME_UTC);
++	                    clock_gettime(CLOCK_REALTIME, &time_curr);
+                         if ((time_curr.tv_sec * 1000 + time_curr.tv_nsec / 1000000)
+                             - (time_update.tv_sec * 1000 + time_update.tv_nsec / 1000000) > 500)
+                         {
+@@ -1275,7 +1275,7 @@ static int moov_to_front_callback( void *param, uint64_t written_movie_size, uin
+ 
+     /* Print, per 1sec */
+     struct timespec time_curr;
+-    timespec_get(&time_curr, TIME_UTC);
++	clock_gettime(CLOCK_REALTIME, &time_curr);
+     if( (time_curr.tv_sec * 1000 + time_curr.tv_nsec / 1000000)
+         - (time_update.tv_sec * 1000 + time_update.tv_nsec / 1000000) <= 500 )
+         return 0;
+diff --git a/cli/remuxer.c b/cli/remuxer.c
+index 912d2c3..914ba76 100644
+--- a/cli/remuxer.c
++++ b/cli/remuxer.c
+@@ -1352,7 +1352,7 @@ static int moov_to_front_callback( void *param, uint64_t written_movie_size, uin
+ 
+     /* Print, per 1sec */
+     struct timespec time_curr;
+-    timespec_get(&time_curr, TIME_UTC);
++    clock_gettime(CLOCK_REALTIME, &time_curr);
+     if( (time_curr.tv_sec * 1000 + time_curr.tv_nsec / 1000000)
+         - (time_update.tv_sec * 1000 + time_update.tv_nsec / 1000000) <= 500 )
+         return 0;
+@@ -1516,7 +1516,7 @@ static int do_remux( remuxer_t *remuxer )
+     uint32_t progress_pos                = 0;
+     uint8_t  pending_flush_fragments     = (remuxer->frag_base_track != 0); /* For non-fragmented movie, always set to 0. */
+     struct timespec time_update;
+-    timespec_get(&time_update, TIME_UTC);
++    clock_gettime(CLOCK_REALTIME, &time_update);
+     while( 1 )
+     {
+         input_t       *in       = &inputs[input_movie_number - 1];
+@@ -1663,7 +1663,7 @@ static int do_remux( remuxer_t *remuxer )
+                         {
+                             /* Print, per 1sec */
+                             struct timespec time_curr;
+-                            timespec_get(&time_curr, TIME_UTC);
++                            clock_gettime(CLOCK_REALTIME, &time_curr);
+                             if ((time_curr.tv_sec * 1000 + time_curr.tv_nsec / 1000000)
+                                 - (time_update.tv_sec * 1000 + time_update.tv_nsec / 1000000) > 500)
+                             {
+diff --git a/cli/timelineeditor.c b/cli/timelineeditor.c
+index 8974a4d..05987a9 100644
+--- a/cli/timelineeditor.c
++++ b/cli/timelineeditor.c
+@@ -878,7 +878,7 @@ static int moov_to_front_callback( void *param, uint64_t written_movie_size, uin
+ 
+     /* Print, per 1sec */
+     struct timespec time_curr;
+-    timespec_get(&time_curr, TIME_UTC);
++    clock_gettime(CLOCK_REALTIME, &time_curr);
+     if( (time_curr.tv_sec * 1000 + time_curr.tv_nsec / 1000000)
+         - (time_update.tv_sec * 1000 + time_update.tv_nsec / 1000000) <= 500 )
+         return 0;
+@@ -1146,7 +1146,7 @@ int main( int argc, char *argv[] )
+     uint64_t total_media_size            = 0;
+     uint32_t progress_pos                = 0;
+     struct timespec time_update;
+-    timespec_get(&time_update, TIME_UTC);
++    clock_gettime(CLOCK_REALTIME, &time_update);
+     while( 1 )
+     {
+         track_t *in_track = &in_movie->track[ in_movie->current_track_number - 1 ];
+@@ -1200,7 +1200,7 @@ int main( int argc, char *argv[] )
+                     {
+                         /* Print, per 1sec */
+                         struct timespec time_curr;
+-                        timespec_get(&time_curr, TIME_UTC);
++                        clock_gettime(CLOCK_REALTIME, &time_curr);
+                         if ((time_curr.tv_sec * 1000 + time_curr.tv_nsec / 1000000)
+                             - (time_update.tv_sec * 1000 + time_update.tv_nsec / 1000000) > 500)
+                         {
+-- 
+2.35.1.windows.2
+
