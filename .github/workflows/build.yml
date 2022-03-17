@@ -407,7 +407,7 @@ jobs:
         run: |
           git clone --depth 1 https://github.com/jpsdr/NNEDI3.git
           cd NNEDI3
-          git am ../patch/asm_FMA_x64-enable.patch
+          git am ..\patch\0001-asm_FMA_x64-enable.patch
           msbuild NNEDI3.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 
       ## masktools ビルド
