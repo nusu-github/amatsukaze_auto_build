@@ -309,12 +309,13 @@ jobs:
 
       ## OpenSSL ビルド
       - name: OpenSSL build
+        uses: ilammy/msvc-dev-cmd@v1.10.0
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
           git clone --depth=1 https://github.com/openssl/openssl.git -b OpenSSL_1_0_2-stable
           cd openssl
           perl Configure VC-WIN64A
-          cmd /c '.\ms\do_win64a'
+          call .\ms\do_win64a
           nmake /S /f ms\ntdll.mak
 
       ## qaac ビルド
