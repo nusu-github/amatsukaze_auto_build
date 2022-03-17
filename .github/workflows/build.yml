@@ -472,4 +472,46 @@ jobs:
       - name: packaging
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
-          echo test
+          mkdir Amatsukaze_pack
+          xcopy join_logo_scp\JL Amatsukaze_pack\JL /Y /E /I
+          mkdir Amatsukaze_pack\exe_files
+          mkdir Amatsukaze_pack\exe_files\plugins64
+          mkdir Amatsukaze_pack\exe_files\cmd
+          mkdir Amatsukaze_pack\exe_files\plugins64\AutoSelected
+          xcopy l-smash\x64\CLIRelease\*.exe Amatsukaze_pack\exe_files /Y
+          xcopy join_logo_scp\src\x64\Release\join_logo_scp.exe Amatsukaze_pack\exe_files /Y
+          xcopy chapter_exe\src\x64\Release\chapter_exe.exe Amatsukaze_pack\exe_files /Y
+          xcopy "gpac\bin\x64\Release - MP4Box_only\mp4box.exe" Amatsukaze_pack\exe_files /Y
+          xcopy qaac\vcproject\x64\Release\qaac64.exe Amatsukaze_pack\exe_files /Y
+          xcopy L-SMASH-Works\AviSynth\x64\Release\LSMASHSource.dll Amatsukaze_pack\exe_files\plugins64 /Y
+          xcopy "AVS-Stuff\avs 2.6 and up\QTGMC.avsi" Amatsukaze_pack\exe_files\plugins64 /Y
+          xcopy RgTools\Build\x64\Release\RgTools.dll Amatsukaze_pack\exe_files\plugins64 /Y
+          xcopy NNEDI3\x64\Release\nnedi3.dll Amatsukaze_pack\exe_files\plugins64\AutoSelected /Y
+          xcopy mvtools\Sources\x64\Release\mvtools2.dll Amatsukaze_pack\exe_files\plugins64 /Y
+          xcopy masktools\masktools\build\x64\Build\release-boost\masktools2.dll Amatsukaze_pack\exe_files\plugins64 /Y
+          xcopy AviSynthCUDAFilters\x64\Release\*.dll Amatsukaze_pack\exe_files\plugins64 /Y
+          xcopy AviSynthCUDAFilters\TestScripts\KFMDeint.avsi Amatsukaze_pack\exe_files\plugins64 /Y
+          xcopy AviSynthCUDAFilters\TestScripts\KSMDegrain.avsi Amatsukaze_pack\exe_files\plugins64 /Y
+          xcopy AviSynthCUDAFilters\TestScripts\KTGMC.avsi Amatsukaze_pack\exe_files\plugins64 /Y
+          xcopy SMDegrain.avsi Amatsukaze_pack\exe_files\plugins64 /Y
+          xcopy D3DVP\x64\Release\D3DVP.dll Amatsukaze_pack\exe_files\plugins64 /Y
+          xcopy yadifmod2\msvc\x64\Release\yadifmod2.dll Amatsukaze_pack\exe_files\plugins64\AutoSelected /Y
+          xcopy TIVTC\src\TIVTC\x64\Release\TIVTC.dll Amatsukaze_pack\exe_files\plugins64 /Y
+          xcopy Amatsukaze\AmatsukazeAddTask\bin\Release\netcoreapp3.1\*.dll Amatsukaze_pack\exe_files /Y
+          xcopy Amatsukaze\AmatsukazeAddTask\bin\Release\netcoreapp3.1\*.exe Amatsukaze_pack\exe_files /Y
+          xcopy Amatsukaze\AmatsukazeAddTask\bin\Release\netcoreapp3.1\AmatsukazeAddTask.runtimeconfig.json Amatsukaze_pack\exe_files /Y
+          xcopy Amatsukaze\AmatsukazeGUI\bin\Release\netcoreapp3.1\*.dll Amatsukaze_pack\exe_files /Y
+          xcopy Amatsukaze\AmatsukazeGUI\bin\Release\netcoreapp3.1\*.exe Amatsukaze_pack\exe_files /Y
+          xcopy Amatsukaze\AmatsukazeGUI\bin\Release\netcoreapp3.1\AmatsukazeGUI.runtimeconfig.json Amatsukaze_pack\exe_files /Y
+          xcopy Amatsukaze\AmatsukazeServer\bin\Release\netcoreapp3.1\*.dll Amatsukaze_pack\exe_files /Y
+          xcopy Amatsukaze\AmatsukazeServer\bin\Release\netcoreapp3.1\*.exe Amatsukaze_pack\exe_files /Y
+          xcopy Amatsukaze\AmatsukazeServer\bin\Release\netcoreapp3.1\AmatsukazeServer.runtimeconfig.json Amatsukaze_pack\exe_files /Y
+          xcopy Amatsukaze\AmatsukazeServerCLI\bin\Release\netcoreapp3.1\*.dll Amatsukaze_pack\exe_files /Y
+          xcopy Amatsukaze\AmatsukazeServerCLI\bin\Release\netcoreapp3.1\*.exe Amatsukaze_pack\exe_files /Y
+          xcopy Amatsukaze\AmatsukazeServerCLI\bin\Release\netcoreapp3.1\AmatsukazeServerCLI.runtimeconfig.json Amatsukaze_pack\exe_files /Y
+          xcopy Amatsukaze\ScriptCommand\bin\Release\netcoreapp3.1\*.dll Amatsukaze_pack\exe_files /Y
+          xcopy Amatsukaze\ScriptCommand\bin\Release\netcoreapp3.1\*.exe Amatsukaze_pack\exe_files /Y
+          xcopy Amatsukaze\ScriptCommand\bin\Release\netcoreapp3.1\ScriptCommand.runtimeconfig.json Amatsukaze_pack\exe_files /Y
+          xcopy Amatsukaze\x64\Release\*.dll Amatsukaze_pack\exe_files /Y
+          xcopy Amatsukaze\x64\Release\*.exe Amatsukaze_pack\exe_files /Y
+          xcopy Amatsukaze_nicojk18\x64\Release\*.exe Amatsukaze_pack\exe_files /Y
