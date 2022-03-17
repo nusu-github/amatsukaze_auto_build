@@ -235,6 +235,10 @@ jobs:
 
       ## MSVC
 
+      # Developer Command Prompt有効化
+      - name: Enable Developer Command Prompt
+        uses: ilammy/msvc-dev-cmd@v1.10.0
+
       ## zlib-ng ビルド
       - name: zlib-ng build
         working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -309,13 +313,12 @@ jobs:
 
       ## OpenSSL ビルド
       - name: OpenSSL build
-        uses: ilammy/msvc-dev-cmd@v1.10.0
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
           git clone --depth=1 https://github.com/openssl/openssl.git -b OpenSSL_1_0_2-stable
           cd openssl
           perl Configure VC-WIN64A
-          call .\ms\do_win64a
+          cdm /c .\ms\do_win64a
           nmake /S /f ms\ntdll.mak
 
       ## qaac ビルド
