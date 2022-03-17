@@ -178,7 +178,7 @@ popd
 pushd "%~dp0"
     git clone --depth=1 https://github.com/pinterf/mvtools.git
     cd mvtools
-    msbuild mvtools.sln /m /t:rebuild /p:Configuration=Release /p:Platform=x64 /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v143
+    msbuild mvtools.sln /m /t:rebuild /p:Configuration=Rel_Clang /p:Platform=x64 /p:WindowsTargetPlatformVersion=10 /p:VcpkgEnabled=false
     if %errorlevel%  neq 0 (exit /b 1)
 popd
 
@@ -241,7 +241,7 @@ popd
 pushd "%~dp0"
     git clone https://github.com/pinterf/TIVTC.git --depth 1
     cd TIVTC\src
-    msbuild TIVTC.sln /m /t:rebuild /p:Configuration=Release /p:Platform=x64 /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v143
+    msbuild TIVTC.sln /m /t:rebuild /p:Configuration=ReleaseClang /p:Platform=x64 /p:WindowsTargetPlatformVersion=10 /p:VcpkgEnabled=false
     if %errorlevel%  neq 0 (exit /b 1)
 popd
 
@@ -266,7 +266,7 @@ pushd "%~dp0"
     xcopy AviSynthPlus\avs_core\include\* Amatsukaze\include /Y /E
     cd Amatsukaze
     @rem バッチファイルを作成するときに文字コードが必ずUTF-8になるバグの修正パッチを適用
-    git am ..\..\patch\0001-bat-file-character-encoding-bug-fixed.patch
+    git am ..\..\patch\0001-bat-file-character-encoding-bug-fixed.patch -3 --keep-cr
     msbuild Amatsukaze.sln /m /t:restore /t:FileCutter:rebuild /t:AmatsukazeCLI:rebuild /t:Caption:rebuild /t:BatchHashChecker:rebuild /t:AmatsukazeAddTask:rebuild /t:AmatsukazeServer:rebuild /t:AmatsukazeServerCLI:rebuild /t:AmatsukazeGUI:rebuild /t:ScriptCommand:rebuild /p:Configuration=Release /p:Platform=x64 /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v143
     if %errorlevel%  neq 0 (exit /b 1)
 popd

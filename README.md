@@ -14,20 +14,14 @@ GitHub Actionを使用してAmatsukaze本体及び依存関係の自動ビルド
 
     AvsCUDA.dll、KFM.dll、KFMDeint.avsi、KNNEDI3.dll、KSMDegrain.avsi、KTGMC.avsi、KTGMC.dll を置き換えてください。
 
-~~どうすればいいかご存じの方教えてください~~
-
 ## 自動ビルドしているもの
 
 ### 本体
-
-ビルドがやりやすかったのでR2Lish氏のfolk版を使用します。NicoJK18Clientは本家のnekopanda氏の方を同梱しています。
 
 - [Amatsukaze](https://github.com/R2Lish/Amatsukaze.git)
 - [NicoJK18Client](https://github.com/nekopanda/Amatsukaze.git)
 
 ### 同梱AviSynthプラグイン
-
-LSMASH Worksとyadifmod2がそれぞれMr-Ojii氏とAsd-g氏の物を使用。
 
 - [AviSynthCUDAFilters](https://github.com/nekopanda/AviSynthCUDAFilters.git)
 - [AvisyntNeo](https://github.com/nekopanda/AviSynthPlus.git)
@@ -37,23 +31,19 @@ LSMASH Worksとyadifmod2がそれぞれMr-Ojii氏とAsd-g氏の物を使用。
 - [yadifmod2](https://github.com/Asd-g/yadifmod2.git)
 - [TIVTC](https://github.com/pinterf/TIVTC.git)
 - [RgTools](https://github.com/pinterf/RgTools.git)
+- [NNEDI3](https://github.com/jpsdr/NNEDI3.git)
 - [LSMASH Works](https://github.com/Mr-Ojii/L-SMASH-Works.git)
 
 ### その他関係ライブラリー
-
-FFmpegのバージョンが大規模な更新。デブロッキングフィルタの改造や
-maki氏のパッチを適用してのビルドです。
 
 - [openssl](https://github.com/openssl/openssl.git)
 - [zlib-ng](https://github.com/zlib-ng/zlib-ng.git)
 - [mfx_dispatch](https://github.com/lu-zero/mfx_dispatch.git)
 - [nv codec headers](https://github.com/FFmpeg/nv-codec-headers.git)
 - [Ut Video Codec Suite](https://github.com/umezawatakeshi/utvideo.git)
-- [FFmpeg 4.3(FFmpeg版)](https://github.com/FFmpeg/FFmpeg.git)
+- [FFmpeg 4.3](https://github.com/FFmpeg/FFmpeg.git)
 
 ### 同梱ソフトウェア
-
-音声のエンコードに対応していたのでqaacを同梱しています。
 
 - [L-SMASH](https://github.com/rigaya/l-smash.git)
 - [mp4box](https://github.com/gpac/gpac.git)

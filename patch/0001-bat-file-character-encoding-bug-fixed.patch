@@ -1,6 +1,6 @@
-From 4903de0c98e2963b5971690aaee03f6af1f7da38 Mon Sep 17 00:00:00 2001
+From a524eda41dda4540e0103458a21ba2ecf8cf0196 Mon Sep 17 00:00:00 2001
 From: nusu-github <29514220+nusu-github@users.noreply.github.com>
-Date: Mon, 14 Mar 2022 16:46:37 +0900
+Date: Thu, 17 Mar 2022 13:44:48 +0900
 Subject: [PATCH] bat file character encoding bug fixed
 
 ---

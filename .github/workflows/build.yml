@@ -300,10 +300,12 @@ jobs:
       ## MP4Box ビルド
       - name: MP4Box build
         working-directory: ${{env.GITHUB_WORKSPACE}}
+        env:
+          CONFIGURATION: Release - MP4Box_only
         run: |
           git clone --recurse-submodules --remote-submodules https://github.com/gpac/gpac.git
           cd gpac\build\msvc14
-          msbuild gpac.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+          msbuild gpac.sln /m /t:rebuild /p:Configuration="${{env.CONFIGURATION}}" /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 
       ## OpenSSL ビルド
       - name: OpenSSL build
@@ -455,7 +457,7 @@ jobs:
           xcopy openssl\inc32\* Amatsukaze\include /Y /E
           xcopy AviSynthPlus\avs_core\include\* Amatsukaze\include /Y /E
           cd Amatsukaze
-          git am ..\..\patch\0001-bat-file-character-encoding-bug-fixed.patch
+          git am ..\patch\0001-bat-file-character-encoding-bug-fixed.patch -3 --keep-cr
           msbuild Amatsukaze.sln /m /t:restore /t:FileCutter:rebuild /t:AmatsukazeCLI:rebuild /t:Caption:rebuild /t:BatchHashChecker:rebuild /t:AmatsukazeAddTask:rebuild /t:AmatsukazeServer:rebuild /t:AmatsukazeServerCLI:rebuild /t:AmatsukazeGUI:rebuild /t:ScriptCommand:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 
       ## Amatsukaze NicoJK18Client ビルド
