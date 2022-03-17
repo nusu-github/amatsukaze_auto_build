@@ -314,7 +314,7 @@ jobs:
           git clone --depth=1 https://github.com/openssl/openssl.git -b OpenSSL_1_0_2-stable
           cd openssl
           perl Configure VC-WIN64A
-          call .\ms\do_win64a
+          cmd /c '.\ms\do_win64a'
           nmake /S /f ms\ntdll.mak
 
       ## qaac ビルド
