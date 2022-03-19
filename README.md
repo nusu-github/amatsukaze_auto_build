@@ -10,6 +10,8 @@ GitHub Actionを使用してAmatsukaze本体及び依存関係の自動ビルド
 
 この配布だけでは動作しません。いくつかのファイルを[Amatsukaze](https://github.com/nekopanda/Amatsukaze.git)から持ってくる必要があります。
 
+また、上書きで更新できるものでもなく手動で取捨選択の必要があることに留意してください。
+
 - GitHubにあるAviSynthCUDAFiltersが古く、現在のAmatsukazeでは動作しない。
 
     AvsCUDA.dll、KFM.dll、KFMDeint.avsi、KNNEDI3.dll、KSMDegrain.avsi、KTGMC.avsi、KTGMC.dll を置き換えてください。

@@ -20,6 +20,22 @@ jobs:
     runs-on: windows-2019
 
     steps:
+      - env:
+          CC: clang
+          CXX: clang++
+          AR: llvm-ar
+          NM: llvm-nm
+          RANLIB: llvm-ranlib
+          OBJCOPY: llvm-objcopy
+          OBJDUMP: llvm-objdump
+          READELF: llvm-readelf
+          STRIP: llvm-strip
+          LIPO: llvm-lipo
+          DLLTOOL: llvm-dlltool
+          CFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -flto=thin -O3
+          CXXFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -flto=thin -O3 -stdlib=libc++
+          LDFLAGS: -static -fuse-ld=lld -unwindlib=libunwind -lc++ -lsupc++ -lc++abi -lpthread
+
       - uses: actions/checkout@v3
 
       # MSYS2 セットアップ
@@ -52,7 +68,7 @@ jobs:
           git config --global user.name "GitHub Action"
 
       ## nv-codec-headers インストール
-      - name: nv-codec-headers build(msys2)
+      - name: nv-codec-headers build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         shell: msys2 {0}
         run: |
@@ -61,20 +77,9 @@ jobs:
           make install PREFIX=/mingw64
 
       ## mfx_dispatch ビルド msys2版
-      - name: mfx_dispatch build(msys2)
+      - name: mfx_dispatch build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         shell: msys2 {0}
-        env:
-          CC: clang
-          CXX: clang++
-          NM: llvm-nm
-          AS: clang
-          AR: llvm-ar
-          RANLIB: llvm-ranlib
-          STRIP: llvm-strip
-          CFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3
-          CXXFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3 -stdlib=libc++
-          LDFLAGS: -static -fuse-ld=lld -unwindlib=libunwind -lc++ -lsupc++ -lc++abi -lpthread
         run: |
           git clone https://github.com/lu-zero/mfx_dispatch.git --depth 1
           cd mfx_dispatch
@@ -83,42 +88,28 @@ jobs:
           make -j$(nproc) install
 
       ## l-smash ビルド
-      - name: l-smash build(msys2)
+      - name: l-smash build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         shell: msys2 {0}
         env:
-          CC: clang
-          CXX: clang++
-          AS: clang
-          NM: llvm-nm
-          AR: llvm-ar
-          RANLIB: llvm-ranlib
-          STRIP: llvm-strip
-          CFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3
-          CXXFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3 -stdlib=libc++
-          LDFLAGS: -static -fuse-ld=lld -unwindlib=libunwind -lc++ -lsupc++ -lc++abi -lpthread
+          CFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -flto=thin -Ofast
+          CXXFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -flto=thin -Ofast -stdlib=libc++
         run: |
-          git clone https://github.com/rigaya/l-smash.git -b add_ver_info l-smash_msys2
-          cd l-smash_msys2
+          git clone https://github.com/rigaya/l-smash.git -b add_ver_info
+          cd l-smash
           git am ../patch/0001-Changed-to-POSIX-standard.patch
+          sed -i -e "s/^CC=.*//g" configure
+          sed -i -e "s/^AR=.*//g" configure
+          sed -i -e "s/^LD=.*//g" configure
+          sed -i -e "s/^RANLIB=.*//g" configure
+          sed -i -e "s/^STRIP=.*//g" configure
           ./configure --prefix=/mingw64 --target-os=mingw --cc=${CC} --extra-cflags="${CFLAGS}" --extra-ldflags="${LDFLAGS}" --extra-libs="-static"
           make -j$(nproc) install
 
       ## x264 ビルド
-      - name: x264 build(msys2)
+      - name: x264 build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         shell: msys2 {0}
-        env:
-          CC: clang
-          CXX: clang++
-          AS: nasm
-          NM: llvm-nm
-          AR: llvm-ar
-          RANLIB: llvm-ranlib
-          STRIP: llvm-strip
-          CFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -flto=thin -O3
-          CXXFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -flto=thin -O3 -stdlib=libc++
-          LDFLAGS: -static -fuse-ld=lld -unwindlib=libunwind -lc++ -lsupc++ -lc++abi -lpthread
         run: |
           git clone https://code.videolan.org/videolan/x264.git
           cd x264
@@ -126,20 +117,9 @@ jobs:
           make -j$(nproc) install
 
       ## x265 ビルド
-      - name: x265 build(msys2)
+      - name: x265 build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         shell: msys2 {0}
-        env:
-          CC: clang
-          CXX: clang++
-          AS: clang
-          NM: llvm-nm
-          AR: llvm-ar
-          RANLIB: llvm-ranlib
-          STRIP: llvm-strip
-          CFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -flto=thin -O3
-          CXXFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -flto=thin -O3 -stdlib=libc++
-          LDFLAGS: -static -fuse-ld=lld -unwindlib=libunwind -lc++ -lsupc++ -lc++abi -lpthread
         run: |
           git clone -j2 https://bitbucket.org/multicoreware/x265_git.git
           cd x265_git/build/msys
@@ -165,18 +145,34 @@ jobs:
           EOF
           cmake --install main/
 
+      ## fdk-aac ビルド
+      - name: fdk-aac build
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        shell: msys2 {0}
+        run: |
+          git clone https://github.com/mstorsjo/fdk-aac.git --depth 1
+          autoreconf -fiv
+          ./configure --prefix=/mingw64 --build=x86_64-w64-mingw32 --host=x86_64-w64-mingw32
+          make -j$(nproc) install
+
+      ## fdkaac ビルド
+      - name: fdkaac build
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        shell: msys2 {0}
+        run: |
+          git clone https://github.com/nu774/fdkaac.git --depth 1
+          cd fdkaac
+          autoreconf -fiv
+          ./configure --prefix=/mingw64 --build=x86_64-w64-mingw32 --host=x86_64-w64-mingw32
+          make -j$(nproc) install
+
       ## FFmpeg ビルド
-      - name: FFmpeg build(msys2)
+      - name: FFmpeg build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         shell: msys2 {0}
         env:
-          CC: clang
-          CXX: clang++
           AS: clang
-          NM: llvm-nm
-          AR: llvm-ar
-          RANLIB: llvm-ranlib
-          STRIP: llvm-strip
+          LD: clang
           CFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3
           CXXFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3 -stdlib=libc++
           LDFLAGS: -static -unwindlib=libunwind -lc++ -lsupc++ -lc++abi -lpthread
@@ -186,10 +182,10 @@ jobs:
           git am ../patch/0001-mpeg2dec-add-DC-table.patch
           ./configure \
             --prefix=output --target-os=mingw64 --arch=x86_64 --enable-shared --enable-thumb \
-            --cc=${CC} --cxx=${CXX} --nm=${NM} --as=${AS} --ar=${AR} --ranlib=${RANLIB} --strip=${STRIP} \
+            --nm=${NM} --ar=${AR} --as=${AS} --strip=${STRIP} --cc=${CC} --cxx=${CXX} --nvcc=${CXX} --ld=${LD} --ranlib=${RANLIB} \
             --extra-libs="-static" --pkg-config-flags="--static" --extra-cflags="${CFLAGS}" --extra-cxxflags="${CXXFLAGS}" --extra-ldflags="${LDFLAGS}" \
             --enable-version3 --enable-avresample --enable-avcodec --enable-avformat --enable-swresample --enable-swscale --enable-avfilter --enable-libmfx --enable-nvdec --enable-hardcoded-tables \
-            --disable-decoder=vp8 --disable-decoder=vp9 --disable-encoders --disable-doc --disable-network --disable-programs --disable-outdevs --disable-indevs --disable-debug
+            --disable-decoder=vp8 --disable-decoder=vp9 --disable-encoders --disable-doc --disable-network --disable-programs --disable-outdevs --disable-indevs --disable-libfdk-aac --disable-debug
           make -j$(nproc) install
           cd output/lib
           rename .dll.a .a *.dll.a
@@ -199,8 +195,10 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: msys2_build-artifact
+          retention-days: 1
           path: |
             FFmpeg/output
+            l-smash/cli/*.exe
             x264/x264.exe
             x265_git/build/msys/main/x265.exe
 
@@ -264,6 +262,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: cuda_build-artifact
+          retention-days: 1
           path: |
             AviSynthPlus/build/Output
             AviSynthPlus/avs_core/include
@@ -316,9 +315,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: perl_build-artifact
+          retention-days: 1
           path: |
-            openssl/out32dll
-            openssl/inc32
+            openssl
 
   # ビルド（依存関係が無いor少ない）
   BUILD_low-dependency:
@@ -456,9 +455,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: low-dependency_build-artifact
+          retention-days: 1
           path: |
-            l-smash/x64/CLIRelease
-            l-smash/lsmash.h
+            l-smash
             join_logo_scp/src/x64/Release/join_logo_scp.exe
             chapter_exe/src/x64/Release/chapter_exe.exe
             gpac/bin/x64/Release - MP4Box_only/mp4box.exe
@@ -549,6 +548,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: mid-dependency_build-artifact
+          retention-days: 1
           path: |
             zlib-ng/build/zlib.lib
             mfx_dispatch/build/mfx.lib
@@ -575,6 +575,16 @@ jobs:
       ## ビルド済みの依存関係をダウンロード
       - name: Download all build artifacts
         uses: actions/download-artifact@v3
+
+      ## ファイルを移動
+      - name: Move build artifact
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          mv cuda_build-artifact\* .\
+          mv low-dependency_build-artifact\* .\
+          mv mid-dependency_build-artifact\* .\
+          mv msys2_build-artifact\* .\
+          mv perl_build-artifact\* .\
 
       ## Gitのグローバルコンフィグを設定
       - name: Git global-config Set
@@ -639,9 +649,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: high-dependency_build-artifact
+          retention-days: 1
           path: |
-            Amatsukaze\*\bin\Release\netcoreapp3.1
-            Amatsukaze\x64\Release\*.dll
+            Amatsukaze
             D3DVP\x64\Release\D3DVP.dll
             L-SMASH-Works\AviSynth\x64\Release\LSMASHSource.dll
 
@@ -666,6 +676,17 @@ jobs:
       - name: Download all build artifacts
         uses: actions/download-artifact@v3
 
+      ## ファイルを移動
+      - name: Move build artifact
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          mv cuda_build-artifact\* .\
+          mv low-dependency_build-artifact\* .\
+          mv mid-dependency_build-artifact\* .\
+          mv high-dependency_build-artifact\* .\
+          mv msys2_build-artifact\* .\
+          mv perl_build-artifact\* .\
+
       ## ビルド成果物をパッケージ化
       - name: packaging
         working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -676,7 +697,7 @@ jobs:
           mkdir Amatsukaze_pack\exe_files\plugins64
           mkdir Amatsukaze_pack\exe_files\cmd
           mkdir Amatsukaze_pack\exe_files\plugins64\AutoSelected
-          xcopy l-smash\x64\CLIRelease\*.exe Amatsukaze_pack\exe_files /Y
+          xcopy l-smash\cli\*.exe Amatsukaze_pack\exe_files /Y
           xcopy join_logo_scp\src\x64\Release\join_logo_scp.exe Amatsukaze_pack\exe_files /Y
           xcopy chapter_exe\src\x64\Release\chapter_exe.exe Amatsukaze_pack\exe_files /Y
           xcopy "gpac\bin\x64\Release - MP4Box_only\mp4box.exe" Amatsukaze_pack\exe_files /Y
@@ -713,3 +734,12 @@ jobs:
           xcopy Amatsukaze\x64\Release\*.dll Amatsukaze_pack\exe_files /Y
           xcopy Amatsukaze\x64\Release\*.exe Amatsukaze_pack\exe_files /Y
           xcopy Amatsukaze_nicojk18\x64\Release\*.exe Amatsukaze_pack\exe_files /Y
+
+      # ビルド成果物をアップロード
+      - name: upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Amatsukaze
+          retention-days: 30
+          path: |
+            Amatsukaze_pack
