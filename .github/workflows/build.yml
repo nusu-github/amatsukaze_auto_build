@@ -22,6 +22,8 @@ jobs:
     env:
       CC: clang
       CXX: clang++
+      LD: clang
+      AS: clang
       AR: llvm-ar
       NM: llvm-nm
       RANLIB: llvm-ranlib
@@ -80,6 +82,10 @@ jobs:
       - name: mfx_dispatch build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         shell: msys2 {0}
+        env:
+          CFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3
+          CXXFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3 -stdlib=libc++
+          LDFLAGS: -static -unwindlib=libunwind -lc++ -lsupc++ -lc++abi -lpthread
         run: |
           git clone https://github.com/lu-zero/mfx_dispatch.git --depth 1
           cd mfx_dispatch
@@ -110,6 +116,8 @@ jobs:
       - name: x264 build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         shell: msys2 {0}
+        env:
+          LD: nasm
         run: |
           git clone https://code.videolan.org/videolan/x264.git
           cd x264
@@ -145,13 +153,33 @@ jobs:
           EOF
           cmake --install main/
 
+      ## fdk-aac ビルド
+      - name: fdk-aac build
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        shell: msys2 {0}
+        run: |
+          git clone https://github.com/mstorsjo/fdk-aac.git --depth 1
+          cd fdk-aac
+          autoreconf -fiv
+          ./configure --prefix=/mingw64 --build=x86_64-w64-mingw32 --host=x86_64-w64-mingw32
+          make -j$(nproc) install
+
+      ## fdkaac ビルド
+      - name: fdkaac build
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        shell: msys2 {0}
+        run: |
+          git clone https://github.com/nu774/fdkaac.git --depth 1
+          cd fdkaac
+          autoreconf -fiv
+          ./configure --prefix=/mingw64 --build=x86_64-w64-mingw32 --host=x86_64-w64-mingw32
+          make -j$(nproc) install
+
       ## FFmpeg ビルド
       - name: FFmpeg build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         shell: msys2 {0}
         env:
-          AS: clang
-          LD: clang
           CFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3
           CXXFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3 -stdlib=libc++
           LDFLAGS: -static -unwindlib=libunwind -lc++ -lsupc++ -lc++abi -lpthread
