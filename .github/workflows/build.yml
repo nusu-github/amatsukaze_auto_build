@@ -145,27 +145,6 @@ jobs:
           EOF
           cmake --install main/
 
-      ## fdk-aac ビルド
-      - name: fdk-aac build
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        shell: msys2 {0}
-        run: |
-          git clone https://github.com/mstorsjo/fdk-aac.git --depth 1
-          autoreconf -fiv
-          ./configure --prefix=/mingw64 --build=x86_64-w64-mingw32 --host=x86_64-w64-mingw32
-          make -j$(nproc) install
-
-      ## fdkaac ビルド
-      - name: fdkaac build
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        shell: msys2 {0}
-        run: |
-          git clone https://github.com/nu774/fdkaac.git --depth 1
-          cd fdkaac
-          autoreconf -fiv
-          ./configure --prefix=/mingw64 --build=x86_64-w64-mingw32 --host=x86_64-w64-mingw32
-          make -j$(nproc) install
-
       ## FFmpeg ビルド
       - name: FFmpeg build
         working-directory: ${{env.GITHUB_WORKSPACE}}
