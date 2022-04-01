@@ -439,6 +439,14 @@ jobs:
           cd TIVTC\src
           msbuild TIVTC.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 
+      ## D3DVP ビルド
+      - name: D3DVP build
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          git clone --depth 1 --recurse-submodules --shallow-submodules --remote-submodules https://github.com/nusu-github/D3DVP.git
+          cd D3DVP
+          msbuild D3DVP.sln /m /t:D3DVP:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+
       ## Amatsukaze NicoJK18Client ビルド
       - name: Amatsukaze NicoJK18Client build
         working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -620,8 +628,7 @@ jobs:
       - name: D3DVP build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
-          git clone --depth 1 --recurse-submodules --shallow-submodules --remote-submodules https://github.com/nekopanda/D3DVP.git
-          xcopy AviSynthPlus\build\Output\c_api\AviSynth.lib D3DVP\lib\x64 /Y
+          git clone --depth 1 --recurse-submodules --shallow-submodules --remote-submodules https://github.com/nusu-github/D3DVP.git
           cd D3DVP
           msbuild D3DVP.sln /m /t:D3DVP:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 

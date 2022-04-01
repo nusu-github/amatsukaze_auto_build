@@ -220,7 +220,7 @@ popd
 
 @rem D3DVP ƒrƒ‹ƒh
 pushd "%~dp0"
-    git clone --depth 1 --recurse-submodules --shallow-submodules --remote-submodules https://github.com/nekopanda/D3DVP.git
+    git clone --depth 1 --recurse-submodules --shallow-submodules --remote-submodules https://github.com/nusu-github/D3DVP.git
     xcopy AviSynthPlus\build\Output\c_api\AviSynth.lib D3DVP\lib\x64 /Y
     cd D3DVP
     msbuild D3DVP.sln /m /t:D3DVP:rebuild /p:Configuration=Release /p:Platform=x64 /p:WindowsTargetPlatformVersion=10 /p:PlatformToolset=v143
