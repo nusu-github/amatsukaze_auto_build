@@ -506,6 +506,10 @@ jobs:
           vcpkg integrate install
           vcpkg install lz4 --triplet x64-windows-static
 
+      # Developer Command Prompt有効化
+      - name: Enable Developer Command Prompt
+        uses: ilammy/msvc-dev-cmd@v1.10.0
+
       ## zlib-ng ビルド
       - name: zlib-ng build
         working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -606,8 +610,8 @@ jobs:
           xcopy mfx_dispatch\build\mfx.lib L-SMASH-Works\build64_msvc\lib /Y
           xcopy l-smash\x64\CLIRelease\liblsmash.lib L-SMASH-Works\build64_msvc\lib /Y
           xcopy l-smash\lsmash.h L-SMASH-Works\include /Y
-          xcopy FFmpeg\output\include L-SMASH-Works\include /Y /E
-          xcopy FFmpeg\output\lib L-SMASH-Works\build64_msvc\lib /Y
+          xcopy FFmpeg\include L-SMASH-Works\include /Y /E
+          xcopy FFmpeg\lib L-SMASH-Works\build64_msvc\lib /Y
           cd L-SMASH-Works\AviSynth
           git am ..\..\patch\0001-Add-XXH_INLINE_ALL.patch
           msbuild LSMASHSourceVCX.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
