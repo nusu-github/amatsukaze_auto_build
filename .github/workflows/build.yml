@@ -16,7 +16,6 @@ jobs:
     env:
       CC: clang
       CXX: clang++
-      LD: clang
       AS: clang
       AR: llvm-ar
       NM: llvm-nm
@@ -168,18 +167,18 @@ jobs:
         run: |
           git clone -j2 https://bitbucket.org/multicoreware/x265_git.git
           cd x265_git/build/msys
-          cmake -G "Ninja" -S ../../source -B 12bit -DCMAKE_BUILD_TYPE=Release -DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF -DENABLE_SHARED=OFF -DENABLE_CLI=OFF -DMAIN12=ON
-          cmake -G "Ninja" -S ../../source -B 10bit -DCMAKE_BUILD_TYPE=Release -DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF -DENABLE_SHARED=OFF -DENABLE_CLI=OFF
-          cmake -G "Ninja" -S ../../source -B main -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/clang64 -DEXTRA_LIB="libx265_main12.a;libx265_main10.a" -DLINKED_10BIT=ON -DLINKED_12BIT=ON
+          cmake -G "Ninja" -S ../../source -B 12bit -DCMAKE_BUILD_TYPE=Release -DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF -DENABLE_SHARED=OFF -DENABLE_CLI=OFF -DMAIN12=ON -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy
+          cmake -G "Ninja" -S ../../source -B 10bit -DCMAKE_BUILD_TYPE=Release -DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF -DENABLE_SHARED=OFF -DENABLE_CLI=OFF -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy
+          cmake -G "Ninja" -S ../../source -B main -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/clang64 -DEXTRA_LIB="libx265_main12.a;libx265_main10.a" -DLINKED_10BIT=ON -DLINKED_12BIT=ON -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy
           cmake --build 12bit
           cmake --build 10bit
-          cp 12bit/libx265.a /mingw64/lib/libx265_main12.a
-          cp 10bit/libx265.a /mingw64/lib/libx265_main10.a
+          cp 12bit/libx265.a /clang64/lib/libx265_main12.a
+          cp 10bit/libx265.a /clang64/lib/libx265_main10.a
           cmake --build main
-          cp main/libx265.a /mingw64/lib/libx265_main.a
-          cp /mingw64/lib/libx265_main12.a libx265_main12.a
-          cp /mingw64/lib/libx265_main10.a libx265_main10.a
-          cp /mingw64/lib/libx265_main.a libx265_main.a
+          cp main/libx265.a /clang64/lib/libx265_main.a
+          cp /clang64/lib/libx265_main12.a libx265_main12.a
+          cp /clang64/lib/libx265_main10.a libx265_main10.a
+          cp /clang64/lib/libx265_main.a libx265_main.a
           llvm-ar -M <<EOF
           CREATE main/libx265.a
           ADDLIB libx265_main.a
@@ -188,7 +187,7 @@ jobs:
           SAVE
           END
           EOF
-          cmake --install main/
+          cmake --install main
 
       # ビルド成果物をアップロード
       - name: upload build artifact
@@ -708,7 +707,7 @@ jobs:
           xcopy RgTools\Build\x64\Release\RgTools.dll Amatsukaze_pack\exe_files\plugins64 /Y
           xcopy NNEDI3\x64\Release\nnedi3.dll Amatsukaze_pack\exe_files\plugins64\AutoSelected /Y
           xcopy mvtools\Sources\x64\Release\mvtools2.dll Amatsukaze_pack\exe_files\plugins64 /Y
-          xcopy masktools\masktools\build\x64\Build\release-boost\masktools2.dll Amatsukaze_pack\exe_files\plugins64 /Y
+          xcopy masktools\masktools\build\x64\Build\release-no-boost\masktools2.dll Amatsukaze_pack\exe_files\plugins64 /Y
           xcopy AviSynthCUDAFilters\x64\Release\*.dll Amatsukaze_pack\exe_files\plugins64 /Y
           xcopy AviSynthCUDAFilters\TestScripts\KFMDeint.avsi Amatsukaze_pack\exe_files\plugins64 /Y
           xcopy AviSynthCUDAFilters\TestScripts\KSMDegrain.avsi Amatsukaze_pack\exe_files\plugins64 /Y
