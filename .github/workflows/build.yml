@@ -3,21 +3,15 @@ name: MSBuild
 on: [push]
 
 env:
-  # Path to the solution file relative to the root of the project.
-  SOLUTION_FILE_PATH: .
-
-  # Configuration type to build.
-  # You can convert this to a build matrix if you need coverage of multiple configuration types.
-  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
   CONFIGURATION: Release
   PLATFORM: x64
   PLATFORM_VERSION: 10
   PLATFORM_TOOLSET: v142
 
 jobs:
-  # ビルド（MSYS2使用）
-  BUILD_msys2-using:
-    runs-on: windows-2019
+  # ビルド（MSYS2 msystem:Mingw64使用）
+  BUILD_msys2_mingw64-using:
+    runs-on: windows-latest
 
     env:
       CC: clang
@@ -33,9 +27,9 @@ jobs:
       STRIP: llvm-strip
       LIPO: llvm-lipo
       DLLTOOL: llvm-dlltool
-      CFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -flto=thin -O3
-      CXXFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -flto=thin -O3 -stdlib=libc++
-      LDFLAGS: -static -fuse-ld=lld -unwindlib=libunwind -lc++ -lsupc++ -lc++abi -lpthread
+      CFLAGS: -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3
+      CXXFLAGS: -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3 -stdlib=libc++
+      LDFLAGS: -unwindlib=libunwind
 
     steps:
       - uses: actions/checkout@v3
@@ -45,21 +39,17 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           update: true
-          msystem: MINGW64
-          install: >-
-            git
-            mingw-w64-x86_64-autotools
-            mingw-w64-x86_64-clang
-            mingw-w64-x86_64-cmake
-            mingw-w64-x86_64-compiler-rt
-            mingw-w64-x86_64-libc++
-            mingw-w64-x86_64-libc++abi
-            mingw-w64-x86_64-libunwind
-            mingw-w64-x86_64-lld
-            mingw-w64-x86_64-nasm
-            mingw-w64-x86_64-ninja
-            mingw-w64-x86_64-pkgconf
-            mingw-w64-x86_64-yasm
+          msystem: mingw64
+          pacboy: >-
+            git:
+            autotools:p
+            toolchain:p
+            nasm:p
+            clang:p
+            compiler-rt:p
+            libc++:p
+            libc++abi:p
+            libunwind:p
 
       ## Gitのグローバルコンフィグを設定
       - name: Git global-config Set
@@ -82,46 +72,93 @@ jobs:
       - name: mfx_dispatch build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         shell: msys2 {0}
-        env:
-          CFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3
-          CXXFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3 -stdlib=libc++
-          LDFLAGS: -static -unwindlib=libunwind -lc++ -lsupc++ -lc++abi -lpthread
         run: |
           git clone https://github.com/lu-zero/mfx_dispatch.git --depth 1
           cd mfx_dispatch
           autoreconf -fiv
-          ./configure --prefix=/mingw64 --build=x86_64-w64-mingw32 --host=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --enable-shared --enable-static
+          ./configure --prefix=/mingw64 --enable-shared --enable-static
           make -j$(nproc) install
+
+      ## FFmpeg ビルド
+      - name: FFmpeg build
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        shell: msys2 {0}
+        run: |
+          git clone --depth=1 -j2 https://github.com/FFmpeg/FFmpeg.git -b release/4.3
+          cd FFmpeg
+          git am ../patch/0001-mpeg2dec-add-DC-table.patch
+          ./configure \
+            --prefix=output --target-os=mingw64 --arch=x86_64 --enable-w32threads --enable-shared --enable-rpath \
+            --nm=${NM} --ar=${AR} --as=${AS} --strip=${STRIP} --cc=${CC} --cxx=${CXX} --ranlib=${RANLIB} \
+            --extra-libs="-static" --pkg-config-flags="--static" --extra-cflags="${CFLAGS}" --extra-cxxflags="${CXXFLAGS}" --extra-ldflags="${LDFLAGS}" \
+            --enable-gpl --enable-avdevice --enable-avcodec --enable-avformat --enable-avresample --enable-swresample --enable-swscale --enable-postproc --enable-avfilter --enable-libmfx --enable-nvdec --enable-hardcoded-tables \
+            --disable-programs --disable-doc --disable-debug
+          make -j$(nproc) install
+          cd output/lib
+          rename .dll.a .a *.dll.a
+
+      # ビルド成果物をアップロード
+      - name: upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: msys2_mingw64_build-artifact
+          retention-days: 1
+          path: |
+            FFmpeg/output
+
+  # ビルド（MSYS2 msystem:Clang64使用）
+  BUILD_msys2_clang64-using:
+    runs-on: windows-latest
+
+    env:
+      CFLAGS: -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3 -flto=thin
+      CXXFLAGS: -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3 -flto=thin -stdlib=libc++
+      LDFLAGS: -unwindlib=libunwind
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # MSYS2 セットアップ
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          msystem: clang64
+          pacboy: >-
+            git:
+            autotools:p
+            toolchain:p
+            cmake:p
+            ninja:p
+            nasm:p
+            yasm:p
+
+      ## Gitのグローバルコンフィグを設定
+      - name: Git global-config Set
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        shell: msys2 {0}
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
 
       ## l-smash ビルド
       - name: l-smash build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         shell: msys2 {0}
-        env:
-          CFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -flto=thin -Ofast
-          CXXFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -flto=thin -Ofast -stdlib=libc++
         run: |
           git clone https://github.com/rigaya/l-smash.git -b add_ver_info
           cd l-smash
-          git am ../patch/0001-Changed-to-POSIX-standard.patch
-          sed -i -e "s/^CC=.*//g" configure
-          sed -i -e "s/^AR=.*//g" configure
-          sed -i -e "s/^LD=.*//g" configure
-          sed -i -e "s/^RANLIB=.*//g" configure
-          sed -i -e "s/^STRIP=.*//g" configure
-          ./configure --prefix=/mingw64 --target-os=mingw --cc=${CC} --extra-cflags="${CFLAGS}" --extra-ldflags="${LDFLAGS}" --extra-libs="-static"
+          ./configure --prefix=/clang64 --target-os=mingw --extra-cflags="${CFLAGS}" --extra-ldflags="${LDFLAGS}" --extra-libs="-static"
           make -j$(nproc) install
 
       ## x264 ビルド
       - name: x264 build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         shell: msys2 {0}
-        env:
-          LD: nasm
         run: |
-          git clone https://code.videolan.org/videolan/x264.git
+          git clone https://github.com/jpsdr/x264.git
           cd x264
-          ./configure --prefix=/mingw64 --enable-static
+          ./configure --prefix=/clang64 --enable-static --enable-strip
           make -j$(nproc) install
 
       ## x265 ビルド
@@ -133,7 +170,7 @@ jobs:
           cd x265_git/build/msys
           cmake -G "Ninja" -S ../../source -B 12bit -DCMAKE_BUILD_TYPE=Release -DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF -DENABLE_SHARED=OFF -DENABLE_CLI=OFF -DMAIN12=ON
           cmake -G "Ninja" -S ../../source -B 10bit -DCMAKE_BUILD_TYPE=Release -DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF -DENABLE_SHARED=OFF -DENABLE_CLI=OFF
-          cmake -G "Ninja" -S ../../source -B main -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/mingw64 -DEXTRA_LIB="libx265_main12.a;libx265_main10.a" -DLINKED_10BIT=ON -DLINKED_12BIT=ON
+          cmake -G "Ninja" -S ../../source -B main -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/clang64 -DEXTRA_LIB="libx265_main12.a;libx265_main10.a" -DLINKED_10BIT=ON -DLINKED_12BIT=ON
           cmake --build 12bit
           cmake --build 10bit
           cp 12bit/libx265.a /mingw64/lib/libx265_main12.a
@@ -153,58 +190,13 @@ jobs:
           EOF
           cmake --install main/
 
-      ## fdk-aac ビルド
-      - name: fdk-aac build
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        shell: msys2 {0}
-        run: |
-          git clone https://github.com/mstorsjo/fdk-aac.git --depth 1
-          cd fdk-aac
-          autoreconf -fiv
-          ./configure --prefix=/mingw64 --build=x86_64-w64-mingw32 --host=x86_64-w64-mingw32
-          make -j$(nproc) install
-
-      ## fdkaac ビルド
-      - name: fdkaac build
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        shell: msys2 {0}
-        run: |
-          git clone https://github.com/nu774/fdkaac.git --depth 1
-          cd fdkaac
-          autoreconf -fiv
-          ./configure --prefix=/mingw64 --build=x86_64-w64-mingw32 --host=x86_64-w64-mingw32
-          make -j$(nproc) install
-
-      ## FFmpeg ビルド
-      - name: FFmpeg build
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        shell: msys2 {0}
-        env:
-          CFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3
-          CXXFLAGS: -static -pipe -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3 -stdlib=libc++
-          LDFLAGS: -static -unwindlib=libunwind -lc++ -lsupc++ -lc++abi -lpthread
-        run: |
-          git clone --depth=1 -j2 https://github.com/FFmpeg/FFmpeg.git -b release/4.3
-          cd FFmpeg
-          git am ../patch/0001-mpeg2dec-add-DC-table.patch
-          ./configure \
-            --prefix=output --target-os=mingw64 --arch=x86_64 --enable-shared --enable-thumb \
-            --nm=${NM} --ar=${AR} --as=${AS} --strip=${STRIP} --cc=${CC} --cxx=${CXX} --nvcc=${CXX} --ld=${LD} --ranlib=${RANLIB} \
-            --extra-libs="-static" --pkg-config-flags="--static" --extra-cflags="${CFLAGS}" --extra-cxxflags="${CXXFLAGS}" --extra-ldflags="${LDFLAGS}" \
-            --enable-version3 --enable-avresample --enable-avcodec --enable-avformat --enable-swresample --enable-swscale --enable-avfilter --enable-libmfx --enable-nvdec --enable-hardcoded-tables \
-            --disable-decoder=vp8 --disable-decoder=vp9 --disable-encoders --disable-doc --disable-network --disable-programs --disable-outdevs --disable-indevs --disable-libfdk-aac --disable-debug
-          make -j$(nproc) install
-          cd output/lib
-          rename .dll.a .a *.dll.a
-
       # ビルド成果物をアップロード
       - name: upload build artifact
         uses: actions/upload-artifact@v3
         with:
-          name: msys2_build-artifact
+          name: msys2_clang64_build-artifact
           retention-days: 1
           path: |
-            FFmpeg/output
             l-smash/cli/*.exe
             x264/x264.exe
             x265_git/build/msys/main/x265.exe
@@ -569,7 +561,7 @@ jobs:
 
     needs:
       [
-        BUILD_msys2-using,
+        BUILD_msys2_mingw64-using,
         BUILD_cuda-using,
         BUILD_perl-using,
         BUILD_low-dependency,
@@ -590,7 +582,7 @@ jobs:
           mv cuda_build-artifact\* .\
           mv low-dependency_build-artifact\* .\
           mv mid-dependency_build-artifact\* .\
-          mv msys2_build-artifact\* .\
+          mv msys2_mingw64_build-artifact\* .\
           mv perl_build-artifact\* .\
 
       ## Gitのグローバルコンフィグを設定
@@ -664,11 +656,12 @@ jobs:
 
   # パッケージング
   packaging:
-    runs-on: windows-2019
+    runs-on: windows-latest
 
     needs:
       [
-        BUILD_msys2-using,
+        BUILD_msys2_clang64-using,
+        BUILD_msys2_mingw64-using,
         BUILD_cuda-using,
         BUILD_perl-using,
         BUILD_low-dependency,
@@ -691,7 +684,8 @@ jobs:
           mv low-dependency_build-artifact\* .\
           mv mid-dependency_build-artifact\* .\
           mv high-dependency_build-artifact\* .\
-          mv msys2_build-artifact\* .\
+          mv msys2_mingw64_build-artifact\* .\
+          mv msys2_clang64_build-artifact\* .\
           mv perl_build-artifact\* .\
 
       ## ビルド成果物をパッケージ化
