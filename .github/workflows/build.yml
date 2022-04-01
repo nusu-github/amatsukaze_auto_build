@@ -103,7 +103,7 @@ jobs:
           name: msys2_mingw64_build-artifact
           retention-days: 1
           path: |
-            FFmpeg/output
+            FFmpeg/output/
 
   # ビルド（MSYS2 msystem:Clang64使用）
   BUILD_msys2_clang64-using:
@@ -130,7 +130,6 @@ jobs:
             cmake:p
             ninja:p
             nasm:p
-            yasm:p
 
       ## Gitのグローバルコンフィグを設定
       - name: Git global-config Set
@@ -581,8 +580,8 @@ jobs:
           mv cuda_build-artifact\* .\
           mv low-dependency_build-artifact\* .\
           mv mid-dependency_build-artifact\* .\
-          mv msys2_mingw64_build-artifact\* .\
-          mv perl_build-artifact\* .\
+          mv msys2_mingw64_build-artifact FFmpeg
+          mv perl_build-artifact openssl
 
       ## Gitのグローバルコンフィグを設定
       - name: Git global-config Set
@@ -630,11 +629,11 @@ jobs:
           mkdir Amatsukaze\lib\x64
           xcopy openssl\out32dll\* Amatsukaze\lib\x64 /Y
           xcopy utvideo\x64\Release\* Amatsukaze\lib\x64 /Y
-          xcopy FFmpeg\output\bin\* Amatsukaze\lib\x64 /Y
+          xcopy FFmpeg\bin\* Amatsukaze\lib\x64 /Y
           xcopy AviSynthPlus\build\Output\c_api\AviSynth.lib Amatsukaze\lib\x64 /Y
           xcopy AviSynthPlus\build\Output\AviSynth.dll Amatsukaze\lib\x64 /Y
           rmdir /S /Q Amatsukaze\include\libavcodec Amatsukaze\include\libavdevice Amatsukaze\include\libavfilter Amatsukaze\include\libavformat Amatsukaze\include\libavutil Amatsukaze\include\libswresample Amatsukaze\include\libswscale Amatsukaze\include\openssl Amatsukaze\include\avs Amatsukaze\include\utvideo
-          xcopy FFmpeg\output\include\* Amatsukaze\include /Y /E
+          xcopy FFmpeg\include\* Amatsukaze\include /Y /E
           xcopy utvideo\utv_core\* Amatsukaze\include\utvideo /Y /E /I
           xcopy openssl\inc32\* Amatsukaze\include /Y /E
           xcopy AviSynthPlus\avs_core\include\* Amatsukaze\include /Y /E
@@ -683,9 +682,7 @@ jobs:
           mv low-dependency_build-artifact\* .\
           mv mid-dependency_build-artifact\* .\
           mv high-dependency_build-artifact\* .\
-          mv msys2_mingw64_build-artifact\* .\
           mv msys2_clang64_build-artifact\* .\
-          mv perl_build-artifact\* .\
 
       ## ビルド成果物をパッケージ化
       - name: packaging
