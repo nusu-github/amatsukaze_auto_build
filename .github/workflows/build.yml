@@ -57,6 +57,7 @@ jobs:
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
+          git config --global core.autocrlf input
 
       ## nv-codec-headers インストール
       - name: nv-codec-headers build
@@ -138,6 +139,7 @@ jobs:
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
+          git config --global core.autocrlf input
 
       ## l-smash ビルド
       - name: l-smash build
@@ -212,6 +214,7 @@ jobs:
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
+          git config --global core.autocrlf input
 
       # MSBuild パス追加
       - name: Add MSBuild to PATH
@@ -279,6 +282,7 @@ jobs:
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
+          git config --global core.autocrlf input
 
       # MSBuild パス追加
       - name: Add MSBuild to PATH
@@ -329,6 +333,7 @@ jobs:
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
+          git config --global core.autocrlf input
 
       # MSBuild パス追加
       - name: Add MSBuild to PATH
@@ -471,7 +476,6 @@ jobs:
             RgTools/Build/x64/Release/RgTools.dll
             masktools/masktools/build/x64/Build/release-no-boost/masktools2.dll
             SMDegrain.avsi
-            D3DVP/x64/Release/D3DVP.dll
             yadifmod2/msvc/x64/Release/yadifmod2.dll
             TIVTC/src/TIVTC/x64/Release/TIVTC.dll
             Amatsukaze_nicojk18/x64/Release/*.exe
@@ -489,6 +493,7 @@ jobs:
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
+          git config --global core.autocrlf input
 
       # MSBuild パス追加
       - name: Add MSBuild to PATH
@@ -552,6 +557,14 @@ jobs:
           cd mvtools
           msbuild mvtools.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 
+      ## D3DVP ビルド
+      - name: D3DVP build
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          git clone --depth 1 --recurse-submodules --shallow-submodules --remote-submodules https://github.com/nusu-github/D3DVP.git
+          cd D3DVP
+          msbuild D3DVP.sln /m /t:D3DVP:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
+
       # ビルド成果物をアップロード
       - name: upload build artifact
         uses: actions/upload-artifact@v3
@@ -563,6 +576,7 @@ jobs:
             mfx_dispatch/build/mfx.lib
             utvideo/utv_core
             utvideo/x64/Release
+            D3DVP/x64/Release/D3DVP.dll
             mvtools/Sources/x64/Release/mvtools2.dll
 
   # ビルド（ビルドが必要な依存関係が多い）
@@ -601,6 +615,7 @@ jobs:
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
+          git config --global core.autocrlf input
 
       # MSBuild パス追加
       - name: Add MSBuild to PATH
@@ -623,14 +638,6 @@ jobs:
           cd L-SMASH-Works\AviSynth
           git am ..\..\patch\0001-Add-XXH_INLINE_ALL.patch
           msbuild LSMASHSourceVCX.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
-
-      ## D3DVP ビルド
-      - name: D3DVP build
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: |
-          git clone --depth 1 --recurse-submodules --shallow-submodules --remote-submodules https://github.com/nusu-github/D3DVP.git
-          cd D3DVP
-          msbuild D3DVP.sln /m /t:D3DVP:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 
       ## Amatsukaze ビルド
       - name: Amatsukaze build
