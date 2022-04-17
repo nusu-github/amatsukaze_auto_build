@@ -560,11 +560,9 @@ jobs:
           git config --global user.name "GitHub Action"
           git config --global core.autocrlf input
 
-      # MSBuild パス追加
-      - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
-        with:
-          msbuild-architecture: ${{env.PLATFORM}}
+      # Developer Command Prompt有効化
+      - name: Enable Developer Command Prompt
+        uses: ilammy/msvc-dev-cmd@v1.10.0
 
       ## LSMASH Works ビルド
       - name: LSMASH Works build
