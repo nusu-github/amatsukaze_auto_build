@@ -14,8 +14,8 @@ jobs:
     runs-on: windows-latest
 
     env:
-      CFLAGS: -pipe -march=x86-64-v3 -O3 -flto -ffat-lto-objects -ffunction-sections -fdata-sections
-      CXXFLAGS: -pipe -march=x86-64-v3 -O3 -flto -ffat-lto-objects -ffunction-sections -fdata-sections
+      CFLAGS: -pipe -march=x86-64-v3 -O3
+      CXXFLAGS: -pipe -march=x86-64-v3 -O3
 
     steps:
       - uses: actions/checkout@v3
@@ -67,14 +67,14 @@ jobs:
         env:
           LDFLAGS: -static
         run: |
-          git clone --depth=1 -j2 https://github.com/FFmpeg/FFmpeg.git -b release/4.3
+          git clone https://github.com/FFmpeg/FFmpeg.git -b release/4.3 --depth=1
           cd FFmpeg
           git am ../patch/0001-mpeg2dec-add-DC-table.patch
           ./configure \
             --prefix=output --target-os=mingw64 --arch=x86_64 --enable-shared \
             --extra-cflags="${CFLAGS}" --extra-cxxflags="${CXXFLAGS}" --extra-ldflags="${LDFLAGS}" \
-            --enable-gpl --enable-avdevice --enable-avcodec --enable-avformat --enable-avresample --enable-swresample --enable-swscale --enable-avfilter --enable-libmfx --enable-nvdec \
-            --disable-programs --disable-doc --disable-debug
+            --enable-avresample --enable-libmfx --enable-nvdec \
+            --disable-network --disable-programs --disable-doc --disable-debug
           make -j$(nproc) install
           cd output/lib
           rename .dll.a .a *.dll.a
@@ -131,7 +131,7 @@ jobs:
         run: |
           git clone https://github.com/jpsdr/x264.git
           cd x264
-          ./configure --prefix=/clang64 --enable-strip
+          ./configure --prefix=/clang64 --enable-strip --extra-cflags="${CFLAGS}" --extra-ldflags="${LDFLAGS}"
           make -j$(nproc) install
 
       ## x265 ビルド
