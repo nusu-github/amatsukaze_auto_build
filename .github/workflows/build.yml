@@ -14,21 +14,8 @@ jobs:
     runs-on: windows-latest
 
     env:
-      CC: clang
-      CXX: clang++
-      AS: clang
-      AR: llvm-ar
-      NM: llvm-nm
-      RANLIB: llvm-ranlib
-      OBJCOPY: llvm-objcopy
-      OBJDUMP: llvm-objdump
-      READELF: llvm-readelf
-      STRIP: llvm-strip
-      LIPO: llvm-lipo
-      DLLTOOL: llvm-dlltool
-      CFLAGS: -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3
-      CXXFLAGS: -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3 -stdlib=libc++
-      LDFLAGS: -unwindlib=libunwind
+      CFLAGS: -pipe -march=x86-64-v3 -O3 -flto -ffat-lto-objects -ffunction-sections -fdata-sections
+      CXXFLAGS: -pipe -march=x86-64-v3 -O3 -flto -ffat-lto-objects -ffunction-sections -fdata-sections
 
     steps:
       - uses: actions/checkout@v3
@@ -44,11 +31,6 @@ jobs:
             autotools:p
             toolchain:p
             nasm:p
-            clang:p
-            compiler-rt:p
-            libc++:p
-            libc++abi:p
-            libunwind:p
 
       ## Gitのグローバルコンフィグを設定
       - name: Git global-config Set
@@ -57,7 +39,6 @@ jobs:
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
-          git config --global core.autocrlf input
 
       ## nv-codec-headers インストール
       - name: nv-codec-headers build
@@ -76,22 +57,23 @@ jobs:
           git clone https://github.com/lu-zero/mfx_dispatch.git --depth 1
           cd mfx_dispatch
           autoreconf -fiv
-          ./configure --prefix=/mingw64 --enable-shared --enable-static
+          ./configure --prefix=/mingw64
           make -j$(nproc) install
 
       ## FFmpeg ビルド
       - name: FFmpeg build
         working-directory: ${{env.GITHUB_WORKSPACE}}
         shell: msys2 {0}
+        env:
+          LDFLAGS: -static
         run: |
           git clone --depth=1 -j2 https://github.com/FFmpeg/FFmpeg.git -b release/4.3
           cd FFmpeg
           git am ../patch/0001-mpeg2dec-add-DC-table.patch
           ./configure \
-            --prefix=output --target-os=mingw64 --arch=x86_64 --enable-w32threads --enable-shared --enable-rpath \
-            --nm=${NM} --ar=${AR} --as=${AS} --strip=${STRIP} --cc=${CC} --cxx=${CXX} --ranlib=${RANLIB} \
-            --extra-libs="-static" --pkg-config-flags="--static" --extra-cflags="${CFLAGS}" --extra-cxxflags="${CXXFLAGS}" --extra-ldflags="${LDFLAGS}" \
-            --enable-gpl --enable-avdevice --enable-avcodec --enable-avformat --enable-avresample --enable-swresample --enable-swscale --enable-postproc --enable-avfilter --enable-libmfx --enable-nvdec --enable-hardcoded-tables \
+            --prefix=output --target-os=mingw64 --arch=x86_64 --enable-shared \
+            --extra-cflags="${CFLAGS}" --extra-cxxflags="${CXXFLAGS}" --extra-ldflags="${LDFLAGS}" \
+            --enable-gpl --enable-avdevice --enable-avcodec --enable-avformat --enable-avresample --enable-swresample --enable-swscale --enable-avfilter --enable-libmfx --enable-nvdec \
             --disable-programs --disable-doc --disable-debug
           make -j$(nproc) install
           cd output/lib
@@ -113,7 +95,7 @@ jobs:
     env:
       CFLAGS: -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3 -flto=thin
       CXXFLAGS: -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -march=x86-64-v3 -O3 -flto=thin -stdlib=libc++
-      LDFLAGS: -unwindlib=libunwind
+      LDFLAGS: -static -unwindlib=libunwind
 
     steps:
       - uses: actions/checkout@v3
@@ -132,15 +114,6 @@ jobs:
             ninja:p
             nasm:p
 
-      ## Gitのグローバルコンフィグを設定
-      - name: Git global-config Set
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        shell: msys2 {0}
-        run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
-          git config --global core.autocrlf input
-
       ## l-smash ビルド
       - name: l-smash build
         working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -148,7 +121,7 @@ jobs:
         run: |
           git clone https://github.com/rigaya/l-smash.git -b add_ver_info
           cd l-smash
-          ./configure --prefix=/clang64 --target-os=mingw --extra-cflags="${CFLAGS}" --extra-ldflags="${LDFLAGS}" --extra-libs="-static"
+          ./configure --prefix=/clang64 --target-os=mingw --extra-cflags="${CFLAGS}" --extra-ldflags="${LDFLAGS}"
           make -j$(nproc) install
 
       ## x264 ビルド
@@ -158,7 +131,7 @@ jobs:
         run: |
           git clone https://github.com/jpsdr/x264.git
           cd x264
-          ./configure --prefix=/clang64 --enable-static --enable-strip
+          ./configure --prefix=/clang64 --enable-strip
           make -j$(nproc) install
 
       ## x265 ビルド
@@ -214,7 +187,6 @@ jobs:
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
-          git config --global core.autocrlf input
 
       # MSBuild パス追加
       - name: Add MSBuild to PATH
@@ -282,19 +254,11 @@ jobs:
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
-          git config --global core.autocrlf input
-
-      # MSBuild パス追加
-      - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
-        with:
-          msbuild-architecture: ${{env.PLATFORM}}
 
       # perl セットアップ
       - name: Setup perl
-        uses: shogo82148/actions-setup-perl@v1
+        uses: shogo82148/actions-setup-perl@v1.15.1
         with:
-          perl-version: "5.32"
           distribution: strawberry
 
       # Developer Command Prompt有効化
@@ -333,7 +297,6 @@ jobs:
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
-          git config --global core.autocrlf input
 
       # MSBuild パス追加
       - name: Add MSBuild to PATH
@@ -476,6 +439,7 @@ jobs:
             RgTools/Build/x64/Release/RgTools.dll
             masktools/masktools/build/x64/Build/release-no-boost/masktools2.dll
             SMDegrain.avsi
+            D3DVP\x64\Release\D3DVP.dll
             yadifmod2/msvc/x64/Release/yadifmod2.dll
             TIVTC/src/TIVTC/x64/Release/TIVTC.dll
             Amatsukaze_nicojk18/x64/Release/*.exe
@@ -493,13 +457,10 @@ jobs:
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
-          git config --global core.autocrlf input
 
-      # MSBuild パス追加
-      - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
-        with:
-          msbuild-architecture: ${{env.PLATFORM}}
+      # Developer Command Prompt有効化
+      - name: Enable Developer Command Prompt
+        uses: ilammy/msvc-dev-cmd@v1.10.0
 
       ## VisualStudioとNASMを統合
       - name: Setup VisualStudio integration NASM
@@ -508,20 +469,11 @@ jobs:
           git clone https://github.com/ShiftMediaProject/VSNASM.git
           VSNASM/install_script.bat
 
-      # ninja インストール
-      - name: Setup ninja
-        run: |
-          choco install ninja -y
-
       # vcpkg セットアップ
       - name: Setup vcpkg
         run: |
           vcpkg integrate install
           vcpkg install lz4 --triplet x64-windows-static
-
-      # Developer Command Prompt有効化
-      - name: Enable Developer Command Prompt
-        uses: ilammy/msvc-dev-cmd@v1.10.0
 
       ## zlib-ng ビルド
       - name: zlib-ng build
@@ -557,14 +509,6 @@ jobs:
           cd mvtools
           msbuild mvtools.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 
-      ## D3DVP ビルド
-      - name: D3DVP build
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: |
-          git clone --depth 1 --recurse-submodules --shallow-submodules --remote-submodules https://github.com/nusu-github/D3DVP.git
-          cd D3DVP
-          msbuild D3DVP.sln /m /t:D3DVP:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
-
       # ビルド成果物をアップロード
       - name: upload build artifact
         uses: actions/upload-artifact@v3
@@ -576,7 +520,6 @@ jobs:
             mfx_dispatch/build/mfx.lib
             utvideo/utv_core
             utvideo/x64/Release
-            D3DVP/x64/Release/D3DVP.dll
             mvtools/Sources/x64/Release/mvtools2.dll
 
   # ビルド（ビルドが必要な依存関係が多い）
@@ -667,7 +610,6 @@ jobs:
           retention-days: 1
           path: |
             Amatsukaze
-            D3DVP\x64\Release\D3DVP.dll
             L-SMASH-Works\AviSynth\x64\Release\LSMASHSource.dll
 
   # パッケージング
