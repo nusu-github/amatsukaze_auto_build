@@ -79,14 +79,20 @@ jobs:
           cd output/lib
           rename .dll.a .a *.dll.a
 
+      # ビルド成果物を圧縮
+      - name: Compress build artifacts
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          tar -cvf msys2_mingw64_build-artifact.tar `
+            FFmpeg/output/
+
       # ビルド成果物をアップロード
       - name: upload build artifact
         uses: actions/upload-artifact@v3
         with:
           name: msys2_mingw64_build-artifact
           retention-days: 1
-          path: |
-            FFmpeg/output/
+          path: msys2_mingw64_build-artifact.tar
 
   # ビルド（MSYS2 msystem:Clang64使用）
   BUILD_msys2_clang64-using:
@@ -163,6 +169,15 @@ jobs:
           EOF
           cmake --install main
 
+      # ビルド成果物を圧縮
+      - name: Compress build artifact
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          tar -cvf msys2_clang64_build-artifact.tar `
+            l-smash/cli/*.exe `
+            x264/x264.exe `
+            x265_git/build/msys/main/x265.exe
+
       # ビルド成果物をアップロード
       - name: upload build artifact
         uses: actions/upload-artifact@v3
@@ -170,9 +185,7 @@ jobs:
           name: msys2_clang64_build-artifact
           retention-days: 1
           path: |
-            l-smash/cli/*.exe
-            x264/x264.exe
-            x265_git/build/msys/main/x265.exe
+            msys2_clang64_build-artifact.tar
 
   # ビルド（CUDA ToolKitが必要）
   BUILD_cuda-using:
@@ -229,17 +242,23 @@ jobs:
           xcopy nnedi3.vcxproj.tmp nnedi3\nnedi3\nnedi3.vcxproj /Y
           msbuild AviSynthCUDAFilters.sln /m /t:AvsCUDA:rebuild /t:KTGMC:rebuild /t:KNNEDI3:rebuild /t:KFM:rebuild /t:KUtil:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 
+      # ビルド成果物を圧縮
+      - name: Compress build artifacts
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          tar -cvf cuda_build-artifact.tar `
+            AviSynthPlus/build/Output `
+            AviSynthPlus/avs_core/include `
+            AviSynthCUDAFilters/x64/Release `
+            AviSynthCUDAFilters/TestScripts
+
       # ビルド成果物をアップロード
       - name: upload build artifact
         uses: actions/upload-artifact@v3
         with:
           name: cuda_build-artifact
           retention-days: 1
-          path: |
-            AviSynthPlus/build/Output
-            AviSynthPlus/avs_core/include
-            AviSynthCUDAFilters/x64/Release
-            AviSynthCUDAFilters/TestScripts
+          path: cuda_build-artifact.tar
 
   # ビルド（perlが必要）
   BUILD_perl-using:
@@ -275,14 +294,20 @@ jobs:
           cmd /c .\ms\do_win64a
           nmake /S /f ms\ntdll.mak
 
+      # ビルド成果物を圧縮
+      - name: Compress build artifact
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          tar -cvf perl_build-artifact.tar `
+            openssl
+
       # ビルド成果物をアップロード
       - name: upload build artifact
         uses: actions/upload-artifact@v3
         with:
           name: perl_build-artifact
           retention-days: 1
-          path: |
-            openssl
+          path: perl_build-artifact.tar
 
   # ビルド（依存関係が無いor少ない）
   BUILD_low-dependency:
@@ -423,26 +448,32 @@ jobs:
           cd Amatsukaze_nicojk18
           msbuild Amatsukaze.sln /m /t:restore /t:NicoJK18Client:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 
+      # ビルド成果物を圧縮
+      - name: Compress build artifacts
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          tar cf low-dependency_build-artifact.tar `
+            l-smash `
+            join_logo_scp/src/x64/Release/join_logo_scp.exe `
+            chapter_exe/src/x64/Release/chapter_exe.exe `
+            "gpac/bin/x64/Release - MP4Box_only/mp4box.exe" `
+            qaac/vcproject/x64/Release/qaac64.exe `
+            "AVS-Stuff/avs 2.6 and up/QTGMC.avsi" `
+            RgTools/Build/x64/Release/RgTools.dll `
+            masktools/masktools/build/x64/Build/release-no-boost/masktools2.dll `
+            SMDegrain.avsi `
+            D3DVP/x64/Release/D3DVP.dll `
+            yadifmod2/msvc/x64/Release/yadifmod2.dll `
+            TIVTC/src/TIVTC/x64/Release/TIVTC.dll `
+            Amatsukaze_nicojk18/x64/Release/*.exe
+
       # ビルド成果物をアップロード
       - name: upload build artifact
         uses: actions/upload-artifact@v3
         with:
           name: low-dependency_build-artifact
           retention-days: 1
-          path: |
-            l-smash
-            join_logo_scp/src/x64/Release/join_logo_scp.exe
-            chapter_exe/src/x64/Release/chapter_exe.exe
-            gpac/bin/x64/Release - MP4Box_only/mp4box.exe
-            qaac/vcproject/x64/Release/qaac64.exe
-            AVS-Stuff/avs 2.6 and up/QTGMC.avsi
-            RgTools/Build/x64/Release/RgTools.dll
-            masktools/masktools/build/x64/Build/release-no-boost/masktools2.dll
-            SMDegrain.avsi
-            D3DVP\x64\Release\D3DVP.dll
-            yadifmod2/msvc/x64/Release/yadifmod2.dll
-            TIVTC/src/TIVTC/x64/Release/TIVTC.dll
-            Amatsukaze_nicojk18/x64/Release/*.exe
+          path: low-dependency_build-artifact.tar
 
   # ビルド（依存関係が多くはないが時間がかかる）
   BUILD_mid-dependency:
@@ -509,18 +540,24 @@ jobs:
           cd mvtools
           msbuild mvtools.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 
+      # ビルド成果物を圧縮
+      - name: Compress build artifact
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          tar -cvf mid-dependency_build-artifact.tar `
+            zlib-ng/build/zlib.lib `
+            mfx_dispatch/build/mfx.lib `
+            utvideo/utv_core `
+            utvideo/x64/Release `
+            mvtools/Sources/x64/Release/mvtools2.dll `
+
       # ビルド成果物をアップロード
       - name: upload build artifact
         uses: actions/upload-artifact@v3
         with:
           name: mid-dependency_build-artifact
           retention-days: 1
-          path: |
-            zlib-ng/build/zlib.lib
-            mfx_dispatch/build/mfx.lib
-            utvideo/utv_core
-            utvideo/x64/Release
-            mvtools/Sources/x64/Release/mvtools2.dll
+          path: mid-dependency_build-artifact.tar
 
   # ビルド（ビルドが必要な依存関係が多い）
   BUILD_high-dependency:
@@ -542,15 +579,11 @@ jobs:
       - name: Download all build artifacts
         uses: actions/download-artifact@v3
 
-      ## ファイルを移動
-      - name: Move build artifact
+      ## ファイルを解凍
+      - name: Uncompress build artifacts
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
-          mv cuda_build-artifact\* .\
-          mv low-dependency_build-artifact\* .\
-          mv mid-dependency_build-artifact\* .\
-          mv msys2_mingw64_build-artifact FFmpeg
-          mv perl_build-artifact openssl
+          Get-ChildItem *.tar | %{ tar -xf $_.FullName }
 
       ## Gitのグローバルコンフィグを設定
       - name: Git global-config Set
@@ -574,8 +607,8 @@ jobs:
           xcopy mfx_dispatch\build\mfx.lib L-SMASH-Works\build64_msvc\lib /Y
           xcopy l-smash\x64\CLIRelease\liblsmash.lib L-SMASH-Works\build64_msvc\lib /Y
           xcopy l-smash\lsmash.h L-SMASH-Works\include /Y
-          xcopy FFmpeg\include L-SMASH-Works\include /Y /E
-          xcopy FFmpeg\lib L-SMASH-Works\build64_msvc\lib /Y
+          xcopy FFmpeg\output\include L-SMASH-Works\include /Y /E
+          xcopy FFmpeg\output\lib L-SMASH-Works\build64_msvc\lib /Y
           cd L-SMASH-Works\AviSynth
           git am ..\..\patch\0001-Add-XXH_INLINE_ALL.patch
           msbuild LSMASHSourceVCX.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
@@ -588,11 +621,14 @@ jobs:
           mkdir Amatsukaze\lib\x64
           xcopy openssl\out32dll\* Amatsukaze\lib\x64 /Y
           xcopy utvideo\x64\Release\* Amatsukaze\lib\x64 /Y
-          xcopy FFmpeg\bin\* Amatsukaze\lib\x64 /Y
+          xcopy FFmpeg\output\bin\* Amatsukaze\lib\x64 /Y
           xcopy AviSynthPlus\build\Output\c_api\AviSynth.lib Amatsukaze\lib\x64 /Y
           xcopy AviSynthPlus\build\Output\AviSynth.dll Amatsukaze\lib\x64 /Y
-          rmdir /S /Q Amatsukaze\include\libavcodec Amatsukaze\include\libavdevice Amatsukaze\include\libavfilter Amatsukaze\include\libavformat Amatsukaze\include\libavutil Amatsukaze\include\libswresample Amatsukaze\include\libswscale Amatsukaze\include\openssl Amatsukaze\include\avs Amatsukaze\include\utvideo
-          xcopy FFmpeg\include\* Amatsukaze\include /Y /E
+          rmdir Amatsukaze\include\lib* -Recurse
+          rmdir Amatsukaze\include\openssl -Recurse
+          rmdir Amatsukaze\include\avs -Recurse
+          rmdir Amatsukaze\include\utvideo -Recurse
+          xcopy FFmpeg\output\include\* Amatsukaze\include /Y /E
           xcopy utvideo\utv_core\* Amatsukaze\include\utvideo /Y /E /I
           xcopy openssl\inc32\* Amatsukaze\include /Y /E
           xcopy AviSynthPlus\avs_core\include\* Amatsukaze\include /Y /E
@@ -632,15 +668,11 @@ jobs:
       - name: Download all build artifacts
         uses: actions/download-artifact@v3
 
-      ## ファイルを移動
-      - name: Move build artifact
+      ## ファイルを解凍
+      - name: Uncompress build artifacts
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
-          mv cuda_build-artifact\* .\
-          mv low-dependency_build-artifact\* .\
-          mv mid-dependency_build-artifact\* .\
-          mv high-dependency_build-artifact\* .\
-          mv msys2_clang64_build-artifact\* .\
+          Get-ChildItem *.tar | %{ tar -xf $_.FullName }
 
       ## ビルド成果物をパッケージ化
       - name: packaging
