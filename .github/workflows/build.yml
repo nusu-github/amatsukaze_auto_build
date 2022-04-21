@@ -84,7 +84,7 @@ jobs:
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
           tar -cvf msys2_mingw64_build-artifact.tar `
-            FFmpeg/output/
+            FFmpeg/output
 
       # ビルド成果物をアップロード
       - name: upload build artifact
