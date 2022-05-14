@@ -209,7 +209,7 @@ jobs:
 
       # CUDA ToolKit セットアップ
       - name: Setup CUDA ToolKit
-        uses: Jimver/cuda-toolkit@v0.2.5
+        uses: Jimver/cuda-toolkit@v0.2.7
         with:
           cuda: "11.5.1"
           method: "local"
