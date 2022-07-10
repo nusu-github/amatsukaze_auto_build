@@ -277,7 +277,7 @@ jobs:
 
       # perl セットアップ
       - name: Setup perl
-        uses: shogo82148/actions-setup-perl@v1.15.2
+        uses: shogo82148/actions-setup-perl@v1.16.2
         with:
           distribution: strawberry
 
