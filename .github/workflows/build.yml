@@ -113,7 +113,7 @@ jobs:
           cd yadifmod2
           git clone --depth=1 https://github.com/AviSynth/AviSynthPlus.git
           xcopy AviSynthPlus\avs_core\include\* src /Y /E
-          cmake -G "Ninja" -S src -B build -DCMAKE_BUILD_TYPE=Release
+          cmake -G "Ninja" -S . -B build -DCMAKE_BUILD_TYPE=Release
           cmake --build build
           mv build/libyadifmod2.0.2.7.dll build/yadifmod2.dll
 
@@ -179,6 +179,7 @@ jobs:
           msystem: clang64
           pacboy: >-
             git:
+            autotools:p
             toolchain:p
             cmake:p
             ninja:p
@@ -228,6 +229,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
+      ## Gitのグローバルコンフィグを設定
+      - name: Git global-config Set
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
 
       # MSYS2 セットアップ
       - name: Setup MSYS2
@@ -362,6 +370,13 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
+
+      ## Gitのグローバルコンフィグを設定
+      - name: Git global-config Set
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
 
       # MSBuild パス追加
       - name: Add MSBuild to PATH
