@@ -230,13 +230,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      ## Gitのグローバルコンフィグを設定
-      - name: Git global-config Set
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
-
       # MSYS2 セットアップ
       - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
@@ -248,6 +241,14 @@ jobs:
             autotools:p
             toolchain:p
             nasm:p
+
+      ## Gitのグローバルコンフィグを設定
+      - name: Git global-config Set
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        shell: msys2 {0}
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
 
       ## nv-codec-headers インストール
       - name: nv-codec-headers build
@@ -485,6 +486,13 @@ jobs:
     needs: [MinGW-yes_dep-group_b]
     steps:
       - uses: actions/checkout@v3
+
+      ## Gitのグローバルコンフィグを設定
+      - name: Git global-config Set
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
 
       ## ビルド済みの依存関係をダウンロード
       - name: Download all build artifacts
