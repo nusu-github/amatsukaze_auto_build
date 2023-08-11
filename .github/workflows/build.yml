@@ -185,6 +185,15 @@ jobs:
             ninja:p
             nasm:p
 
+      ## obuparse インストール
+      - name: obuparse install
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        shell: msys2 {0}
+        run: |
+          git clone https://github.com/dwbuiten/obuparse.git
+          cd obuparse
+          make -j$(nproc) install
+
       ## l-smash ビルド
       - name: l-smash build
         working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -235,7 +244,7 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           update: true
-          msystem: mingw64
+          msystem: clang64
           pacboy: >-
             git:
             autotools:p
@@ -257,7 +266,7 @@ jobs:
         run: |
           git clone https://github.com/FFmpeg/nv-codec-headers.git --depth 1
           cd nv-codec-headers
-          make install PREFIX=/mingw64
+          make install PREFIX=/clang64
 
       ## mfx_dispatch ビルド
       - name: mfx_dispatch build
@@ -267,7 +276,7 @@ jobs:
           git clone https://github.com/lu-zero/mfx_dispatch.git --depth 1
           cd mfx_dispatch
           autoreconf -fiv
-          ./configure --prefix=/mingw64
+          ./configure --prefix=/clang64
           make -j$(nproc) install
 
       ## FFmpeg ビルド
