@@ -17,9 +17,9 @@ jobs:
     runs-on: windows-latest
 
     env:
-      CFLAGS: -O3 -march=x86-64-v3 -mthreads -mvzeroupper -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -flto=thin
-      CXXFLAGS: -O3 -march=x86-64-v3 -mthreads -mvzeroupper -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -flto=thin -stdlib=libc++
-      LDFLAGS: -static -unwindlib=libunwind
+      CFLAGS: -O3 -march=x86-64-v3 -mthreads -mvzeroupper
+      CXXFLAGS: -O3 -march=x86-64-v3 -mthreads -mvzeroupper
+      LDFLAGS: -static
 
     steps:
       - uses: actions/checkout@v3
@@ -85,8 +85,8 @@ jobs:
     runs-on: windows-latest
 
     env:
-      CFLAGS: -pipe -O3 -march=x86-64-v3 -mthreads -mtls-dialect=gnu2 -mvzeroupper -minline-all-stringops -minline-stringops-dynamically
-      CXXFLAGS: -pipe -O3 -march=x86-64-v3 -mthreads -mtls-dialect=gnu2 -mvzeroupper -minline-all-stringops -minline-stringops-dynamically
+      CFLAGS: -O3 -march=x86-64-v3 -mthreads -mvzeroupper
+      CXXFLAGS: -O3 -march=x86-64-v3 -mthreads -mvzeroupper
       LDFLAGS: -static
 
     steps:
@@ -165,9 +165,9 @@ jobs:
     runs-on: windows-latest
 
     env:
-      CFLAGS: -O3 -march=x86-64-v3 -mthreads -mvzeroupper -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -flto=thin
-      CXXFLAGS: -O3 -march=x86-64-v3 -mthreads -mvzeroupper -fintegrated-as -fintegrated-cc1 -rtlib=compiler-rt -flto=thin -stdlib=libc++
-      LDFLAGS: -static -unwindlib=libunwind
+      CFLAGS: -O3 -march=x86-64-v3 -mthreads -mvzeroupper
+      CXXFLAGS: -O3 -march=x86-64-v3 -mthreads -mvzeroupper
+      LDFLAGS: -static
 
     steps:
       - uses: actions/checkout@v3
@@ -224,8 +224,8 @@ jobs:
     runs-on: windows-latest
 
     env:
-      CFLAGS: -pipe -O3 -march=x86-64-v3 -mthreads -mtls-dialect=gnu2 -mvzeroupper -minline-all-stringops -minline-stringops-dynamically
-      CXXFLAGS: -pipe -O3 -march=x86-64-v3 -mthreads -mtls-dialect=gnu2 -mvzeroupper -minline-all-stringops -minline-stringops-dynamically
+      CFLAGS: -O3 -march=x86-64-v3 -mthreads -mvzeroupper
+      CXXFLAGS: -O3 -march=x86-64-v3 -mthreads -mvzeroupper
 
     steps:
       - uses: actions/checkout@v3
@@ -583,7 +583,7 @@ jobs:
       - name: Setup CUDA ToolKit
         uses: Jimver/cuda-toolkit@v0.2.11
         with:
-          cuda: "11.7.0"
+          cuda: "11.8.0"
 
       ## AviSynthNeo ビルド
       - name: AviSynthNeo build
@@ -595,23 +595,6 @@ jobs:
           xcopy CMakeLists.txt.tmp CMakeLists.txt /Y
           cmake -G "Visual Studio 16 2019" -S . -B build -A x64 -DBUILD_SHARED_LIBS=true -DCMAKE_CONFIGURATION_TYPES=Release
           cmake --build build --config Release --target AvsCore -- /m
-
-      ## AvsCUDA,KTGMC,KNNEDI3,KFM ビルド
-      #- name: AvsCUDA,KTGMC,KNNEDI3,KFM build
-      #  working-directory: ${{env.GITHUB_WORKSPACE}}
-      #  run: |
-      #    git clone --depth 1 --recurse-submodules --shallow-submodules --remote-submodules -j2 https://github.com/nekopanda/AviSynthCUDAFilters.git
-      #    xcopy AviSynthPlus\build\Output\c_api\AviSynth.lib AviSynthCUDAFilters\lib\x64 /Y
-      #    cd AviSynthCUDAFilters
-      #    Get-Content AvsCUDA\AvsCUDA.vcxproj | foreach { $_ -replace "CUDA 8.0" , "CUDA 11.7.0" } | foreach { $_ -replace "compute_61,sm_61;compute_35,sm_35" , "compute_35,sm_35;compute_52,sm_52;compute_61,sm_61;compute_75,sm_75;compute_86,sm_86" } | foreach { $_ -replace "<ConformanceMode>true</ConformanceMode>" , "<ConformanceMode>false</ConformanceMode>" } | foreach { $_ -replace '<AdditionalOptions>-Xcompiler "/wd 4819"', '<AdditionalOptions>-std=c++17 -Xcompiler "/std:c++17" -Xcompiler "/wd 4819"' } > AvsCUDA.vcxproj.tmp
-      #    Get-Content KFM\KFM.vcxproj | foreach { $_ -replace "CUDA 8.0" , "CUDA 11.7" } | foreach { $_ -replace "compute_61,sm_61;compute_35,sm_35" , "compute_35,sm_35;compute_52,sm_52;compute_61,sm_61;compute_75,sm_75;compute_86,sm_86" } > KFM.vcxproj.tmp
-      #    Get-Content KTGMC\KTGMC.vcxproj | foreach { $_ -replace "CUDA 8.0" , "CUDA 11.7" } | foreach { $_ -replace "compute_61,sm_61;compute_35,sm_35" , "compute_35,sm_35;compute_52,sm_52;compute_61,sm_61;compute_75,sm_75;compute_86,sm_86" }  > KTGMC.vcxproj.tmp
-      #    Get-Content nnedi3\nnedi3\nnedi3.vcxproj | foreach { $_ -replace "CUDA 8.0" , "CUDA 11.7" } | foreach { $_ -replace "compute_61,sm_61;compute_35,sm_35" , "compute_35,sm_35;compute_52,sm_52;compute_61,sm_61;compute_75,sm_75;compute_86,sm_86" } > nnedi3.vcxproj.tmp
-      #    xcopy AvsCUDA.vcxproj.tmp AvsCUDA\AvsCUDA.vcxproj /Y
-      #    xcopy KFM.vcxproj.tmp KFM\KFM.vcxproj /Y
-      #    xcopy KTGMC.vcxproj.tmp KTGMC\KTGMC.vcxproj /Y
-      #    xcopy nnedi3.vcxproj.tmp nnedi3\nnedi3\nnedi3.vcxproj /Y
-      #    msbuild AviSynthCUDAFilters.sln /m /t:AvsCUDA:rebuild /t:KTGMC:rebuild /t:KNNEDI3:rebuild /t:KFM:rebuild /t:KUtil:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 
       # ビルド成果物を圧縮
       - name: Compress build artifact
