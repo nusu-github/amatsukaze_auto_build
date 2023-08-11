@@ -581,7 +581,7 @@ jobs:
 
       # CUDA ToolKit セットアップ
       - name: Setup CUDA ToolKit
-        uses: Jimver/cuda-toolkit@v0
+        uses: Jimver/cuda-toolkit@v0.2.11
         with:
           cuda: "11.8.0"
 
