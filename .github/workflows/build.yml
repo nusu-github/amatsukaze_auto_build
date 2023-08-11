@@ -14,7 +14,7 @@ jobs:
   # MinGW
 
   MinGW-no_dep-group_a:
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     env:
       CFLAGS: -O3 -march=x86-64-v3 -mthreads -mvzeroupper
@@ -82,7 +82,7 @@ jobs:
           path: MinGW-no_dep-group_a.tar
 
   MinGW-no_dep-group_b:
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     env:
       CFLAGS: -O3 -march=x86-64-v3 -mthreads -mvzeroupper
@@ -115,7 +115,7 @@ jobs:
           xcopy AviSynthPlus\avs_core\include\* src /Y /E
           cmake -G "Ninja" -S . -B build -DCMAKE_BUILD_TYPE=Release
           cmake --build build
-          mv build/libyadifmod2.0.2.7.dll build/yadifmod2.dll
+          mv build/libyadifmod2.*.*.*.dll build/yadifmod2.dll
 
       ## masktools ビルド
       - name: masktools build
@@ -162,7 +162,7 @@ jobs:
           path: MinGW-no_dep-group_b.tar
 
   MinGW-yes_dep-group_a:
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     env:
       CFLAGS: -O3 -march=x86-64-v3 -mthreads -mvzeroupper
@@ -190,7 +190,7 @@ jobs:
         working-directory: ${{env.GITHUB_WORKSPACE}}
         shell: msys2 {0}
         run: |
-          git clone https://github.com/rigaya/l-smash.git -b add_ver_info
+          git clone https://github.com/vimeo/l-smash.git
           cd l-smash
           ./configure --prefix=/clang64 --target-os=mingw --extra-cflags="${CFLAGS}" --extra-ldflags="${LDFLAGS}"
           make -j$(nproc) install
@@ -221,7 +221,7 @@ jobs:
           path: MinGW-yes_dep-group_a.tar
 
   MinGW-yes_dep-group_b:
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     env:
       CFLAGS: -O3 -march=x86-64-v3 -mthreads -mvzeroupper
@@ -306,13 +306,13 @@ jobs:
   # MSVC
 
   MSVC-no_dep-group_a:
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v3
 
       # MSBuild パス追加
       - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v1.3
+        uses: microsoft/setup-msbuild@v1
         with:
           msbuild-architecture: ${{env.PLATFORM}}
 
@@ -368,7 +368,7 @@ jobs:
           path: MSVC-no_dep-group_a.tar
 
   MSVC-no_dep-group_b:
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v3
 
@@ -381,7 +381,7 @@ jobs:
 
       # MSBuild パス追加
       - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v1.3
+        uses: microsoft/setup-msbuild@v1
         with:
           msbuild-architecture: ${{env.PLATFORM}}
 
@@ -433,13 +433,13 @@ jobs:
 
       # perl セットアップ
       - name: Setup perl
-        uses: shogo82148/actions-setup-perl@v1.23.1
+        uses: shogo82148/actions-setup-perl@v1
         with:
           distribution: strawberry
 
       # Developer Command Prompt有効化
       - name: Enable Developer Command Prompt
-        uses: ilammy/msvc-dev-cmd@v1.12.1
+        uses: ilammy/msvc-dev-cmd@v1
 
       # vcpkg セットアップ
       - name: Setup vcpkg
@@ -482,7 +482,7 @@ jobs:
           path: MSVC-yes_dep-group_a.tar
 
   MSVC-yes_dep-group_b:
-    runs-on: windows-latest
+    runs-on: windows-2022
     needs: [MinGW-yes_dep-group_b]
     steps:
       - uses: actions/checkout@v3
@@ -506,7 +506,7 @@ jobs:
 
       # MSBuild パス追加
       - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v1.3
+        uses: microsoft/setup-msbuild@v1
         with:
           msbuild-architecture: ${{env.PLATFORM}}
 
@@ -534,7 +534,7 @@ jobs:
         env:
           CONFIGURATION: CLIRelease
         run: |
-          git clone --depth=1 https://github.com/rigaya/l-smash.git -b add_ver_info
+          git clone --depth=1 https://github.com/vimeo/l-smash.git
           cd l-smash
           msbuild L-SMASH.sln /m /t:rebuild /p:Configuration=${{env.CONFIGURATION}} /p:Platform=${{env.PLATFORM}} /p:WindowsTargetPlatformVersion=${{env.PLATFORM_VERSION}} /p:PlatformToolset=${{env.PLATFORM_TOOLSET}}
 
@@ -575,13 +575,13 @@ jobs:
 
       # MSBuild パス追加
       - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v1.3
+        uses: microsoft/setup-msbuild@v1
         with:
           msbuild-architecture: ${{env.PLATFORM}}
 
       # CUDA ToolKit セットアップ
       - name: Setup CUDA ToolKit
-        uses: Jimver/cuda-toolkit@v0.2.11
+        uses: Jimver/cuda-toolkit@v0
         with:
           cuda: "11.8.0"
 
@@ -593,7 +593,7 @@ jobs:
           cd AviSynthPlus
           Get-Content CMakeLists.txt | foreach { $_ -replace 'v141_xp' , 'v142' } | Out-File -Encoding UTF8 CMakeLists.txt.tmp
           xcopy CMakeLists.txt.tmp CMakeLists.txt /Y
-          cmake -G "Visual Studio 16 2019" -S . -B build -A x64 -DBUILD_SHARED_LIBS=true -DCMAKE_CONFIGURATION_TYPES=Release
+          cmake -S . -B build -A x64 -DBUILD_SHARED_LIBS=true -DCMAKE_CONFIGURATION_TYPES=Release
           cmake --build build --config Release --target AvsCore -- /m
 
       # ビルド成果物を圧縮
@@ -639,7 +639,7 @@ jobs:
 
       # Developer Command Prompt有効化
       - name: Enable Developer Command Prompt
-        uses: ilammy/msvc-dev-cmd@v1.12.1
+        uses: ilammy/msvc-dev-cmd@v1
 
       ## Amatsukaze ビルド
       - name: Amatsukaze build
@@ -681,7 +681,7 @@ jobs:
   # other
 
   other-download:
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v3
 
@@ -715,7 +715,7 @@ jobs:
   # packaging
 
   packaging:
-    runs-on: windows-latest
+    runs-on: windows-2022
     needs:
       [
         MinGW-no_dep-group_a,
