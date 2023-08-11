@@ -433,7 +433,7 @@ jobs:
 
       # perl セットアップ
       - name: Setup perl
-        uses: shogo82148/actions-setup-perl@v1.16.2
+        uses: shogo82148/actions-setup-perl@v1.23.1
         with:
           distribution: strawberry
 
