@@ -22,7 +22,7 @@ jobs:
       LDFLAGS: -static
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # MSYS2 セットアップ
       - name: Setup MSYS2
@@ -90,7 +90,7 @@ jobs:
       LDFLAGS: -static
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
@@ -170,7 +170,7 @@ jobs:
       LDFLAGS: -static
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
@@ -237,7 +237,7 @@ jobs:
       CXXFLAGS: -O3 -march=x86-64-v3 -mthreads -mvzeroupper
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # MSYS2 セットアップ
       - name: Setup MSYS2
@@ -317,7 +317,7 @@ jobs:
   MSVC-no_dep-group_a:
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # MSBuild パス追加
       - name: Add MSBuild to PATH
@@ -379,7 +379,7 @@ jobs:
   MSVC-no_dep-group_b:
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       ## Gitのグローバルコンフィグを設定
       - name: Git global-config Set
@@ -438,7 +438,7 @@ jobs:
   MSVC-yes_dep-group_a:
     runs-on: windows-2019
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # perl セットアップ
       - name: Setup perl
@@ -494,7 +494,7 @@ jobs:
     runs-on: windows-2022
     needs: [MinGW-yes_dep-group_b]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       ## Gitのグローバルコンフィグを設定
       - name: Git global-config Set
@@ -580,7 +580,7 @@ jobs:
   MSVC-yes_dep-group_c:
     runs-on: windows-2019
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # MSBuild パス追加
       - name: Add MSBuild to PATH
@@ -624,7 +624,7 @@ jobs:
     runs-on: windows-2019
     needs: [MinGW-yes_dep-group_b, MSVC-yes_dep-group_a, MSVC-yes_dep-group_c]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       ## ビルド済みの依存関係をダウンロード
       - name: Download all build artifacts
@@ -692,7 +692,7 @@ jobs:
   other-download:
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: QTGMC
         working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -740,7 +740,7 @@ jobs:
         other-download,
       ]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       ## ビルド済みの依存関係をダウンロード
       - name: Download all build artifacts
