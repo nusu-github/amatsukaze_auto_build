@@ -436,7 +436,7 @@ jobs:
           path: MSVC-no_dep-group_b.tar
 
   MSVC-yes_dep-group_a:
-    runs-on: windows-2019
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v3
 
@@ -578,7 +578,7 @@ jobs:
           path: MSVC-yes_dep-group_b.tar
 
   MSVC-yes_dep-group_c:
-    runs-on: windows-2019
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v3
 
@@ -621,7 +621,7 @@ jobs:
           path: MSVC-yes_dep-group_c.tar
 
   MSVC-yes_dep-group_d:
-    runs-on: windows-2019
+    runs-on: windows-2022
     needs: [MinGW-yes_dep-group_b, MSVC-yes_dep-group_a, MSVC-yes_dep-group_c]
     steps:
       - uses: actions/checkout@v3
