@@ -76,7 +76,7 @@ jobs:
 
       # ビルド成果物をアップロード
       - name: upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MinGW-no_dep-group_a
           path: MinGW-no_dep-group_a.tar
@@ -156,7 +156,7 @@ jobs:
 
       # ビルド成果物をアップロード
       - name: upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MinGW-no_dep-group_b
           path: MinGW-no_dep-group_b.tar
@@ -224,7 +224,7 @@ jobs:
 
       # ビルド成果物をアップロード
       - name: upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MinGW-yes_dep-group_a
           path: MinGW-yes_dep-group_a.tar
@@ -307,7 +307,7 @@ jobs:
 
       # ビルド成果物をアップロード
       - name: upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MinGW-yes_dep-group_b
           path: MinGW-yes_dep-group_b.tar
@@ -371,7 +371,7 @@ jobs:
 
       # ビルド成果物をアップロード
       - name: upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MSVC-no_dep-group_a
           path: MSVC-no_dep-group_a.tar
@@ -430,7 +430,7 @@ jobs:
 
       # ビルド成果物をアップロード
       - name: upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MSVC-no_dep-group_b
           path: MSVC-no_dep-group_b.tar
@@ -485,7 +485,7 @@ jobs:
 
       # ビルド成果物をアップロード
       - name: upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MSVC-yes_dep-group_a
           path: MSVC-yes_dep-group_a.tar
@@ -572,7 +572,7 @@ jobs:
 
       # ビルド成果物をアップロード
       - name: upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MSVC-yes_dep-group_b
           path: MSVC-yes_dep-group_b.tar
@@ -615,7 +615,7 @@ jobs:
 
       # ビルド成果物をアップロード
       - name: upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MSVC-yes_dep-group_c
           path: MSVC-yes_dep-group_c.tar
@@ -682,7 +682,7 @@ jobs:
 
       # ビルド成果物をアップロード
       - name: upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MSVC-yes_dep-group_d
           path: MSVC-yes_dep-group_d.tar
@@ -716,7 +716,7 @@ jobs:
 
       # ビルド成果物をアップロード
       - name: upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: other-download
           path: other-download.tar
@@ -812,7 +812,7 @@ jobs:
 
       # ビルド成果物をアップロード
       - name: upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Amatsukaze
           path: Amatsukaze_pack
