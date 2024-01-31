@@ -321,7 +321,7 @@ jobs:
 
       # MSBuild パス追加
       - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v1
+        uses: microsoft/setup-msbuild@v2
         with:
           msbuild-architecture: ${{env.PLATFORM}}
 
@@ -390,7 +390,7 @@ jobs:
 
       # MSBuild パス追加
       - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v1
+        uses: microsoft/setup-msbuild@v2
         with:
           msbuild-architecture: ${{env.PLATFORM}}
 
@@ -515,7 +515,7 @@ jobs:
 
       # MSBuild パス追加
       - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v1
+        uses: microsoft/setup-msbuild@v2
         with:
           msbuild-architecture: ${{env.PLATFORM}}
 
@@ -584,7 +584,7 @@ jobs:
 
       # MSBuild パス追加
       - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v1
+        uses: microsoft/setup-msbuild@v2
         with:
           msbuild-architecture: ${{env.PLATFORM}}
 
