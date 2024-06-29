@@ -1,3 +1,9 @@
+# 非推奨
+
+rigaya氏のAmatsukaze 改造版をご使用ください。
+
+自分でビルドしてみたいという、数奇な人向けに残しておきます。
+
 # amatsukaze_auto_build
 
 Amatsukaze本体及び依存関係の自動ビルド
